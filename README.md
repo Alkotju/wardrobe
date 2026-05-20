@@ -19,6 +19,33 @@
 
 Приложение задумано как личный «цифровой шкаф»: пользователь загружает фотографии вещей, фон автоматически удаляется, после чего вещи можно перетаскивать на мудборд, объединять в коллекции и оставлять личные заметки к каждой.
 
+### 🚀 Быстрый старт
+
+```bash
+# 1. Клонируйте репозиторий
+git clone https://github.com/Alkotju/wardrobe.git
+cd wardrobe
+
+# 2. Скопируйте переменные окружения
+cp .env.example .env
+
+# 3. Отредактируйте .env (особенно JWT_SECRET и учётные данные администратора)
+# На Unix/Linux/macOS:
+nano .env
+# На Windows используйте любой текстовый редактор
+
+# 4. Сгенерируйте самоподписанный сертификат
+cd nginx && bash generate-self-signed.sh && cd ..
+
+# 5. Запустите контейнеры
+docker compose up -d --build
+
+# 6. Создайте администратора
+docker compose exec api npm run seed
+
+# 7. Откройте в браузере: https://localhost
+```
+
 ### Основные функции
 
 - **Каталог одежды** — загрузка фото с автоматическим удалением фона (`@imgly/background-removal-node`), категоризация, теги, цвета, материал. Клик по карточке открывает фото в полноэкранном лайтбоксе; редактирование — отдельной кнопкой.
@@ -55,6 +82,74 @@
 **Внешние API:**
 - [yr.no](https://api.met.no/) — прогноз погоды
 - [Nominatim](https://nominatim.org/) — геокодинг
+
+### 📁 Структура проекта
+
+```
+wardrobe/
+├── api/                    # Backend (Node.js + Express)
+│   ├── src/
+│   │   ├── config/         # Конфигурация БД
+│   │   ├── middleware/     # Аутентификация, валидация, обработка ошибок
+│   │   ├── models/         # Mongoose схемы (User, ClothingItem, Outfit, Collection)
+│   │   ├── routes/         # REST API маршруты
+│   │   ├── services/       # Обработка изображений, анализ цветов, погода
+│   │   └── utils/          # Утилиты
+│   ├── tests/              # Jest тесты (unit + integration)
+│   ├── scripts/            # Скрипты (seed admin, cleanup)
+│   └── Dockerfile
+│
+├── frontend/               # Frontend (vanilla JS, без bundler)
+│   ├── js/
+│   │   ├── api.js          # HTTP клиент к backend
+│   │   ├── store.js        # Глобальное состояние
+│   │   ├── auth.js         # Аутентификация и JWT
+│   │   ├── router.js       # Hash-роутер
+│   │   ├── wardrobe.js     # Раздел гардероба
+│   │   ├── outfits.js      # Конструктор образов
+│   │   ├── collections.js  # Коллекции вещей
+│   │   ├── weather.js      # Погодный виджет
+│   │   └── admin.js        # Админ-панель
+│   ├── styles/             # CSS
+│   ├── index.html          # Точка входа
+│   └── tests/              # Jest тесты
+│
+├── nginx/                  # Reverse-proxy с HTTPS
+│   ├── nginx.conf
+│   ├── certs/              # TLS сертификаты
+│   ├── generate-self-signed.sh
+│   └── Dockerfile
+│
+├── docker-compose.yml      # Оркестрация контейнеров
+├── .env.example            # Пример переменных окружения
+├── .gitignore
+└── README.md
+```
+
+### 🛠️ Разработка
+
+**Для локальной разработки backend:**
+```bash
+cd api
+npm install
+npm run dev        # Node --watch режим
+npm test          # Запустить тесты
+npm test -- --coverage  # С отчётом покрытия
+```
+
+**Для локальной разработки frontend:**
+```bash
+cd frontend
+npm install
+npm test          # Jest тесты
+```
+
+**После изменений пушьте в Git:**
+```bash
+git add .
+git commit -m "Описание изменений"
+git push
+```
 
 ### Производительность и инфраструктура
 
