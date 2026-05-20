@@ -11,6 +11,7 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', '..', 'u
 
 const MAX_DIMENSION = parseInt(process.env.IMAGE_MAX_DIMENSION, 10) || 1024;
 
+// EN: Ensures the user's upload directory exists (creates it if needed) and returns its path.
 // ET: Tagab kasutaja üleslaadimiskausta olemasolu (loob vajadusel) ja tagastab selle tee.
 // RU: Гарантирует существование папки загрузок пользователя (создаёт при необходимости) и возвращает её путь.
 async function ensureUserDir(userId) {
@@ -19,6 +20,7 @@ async function ensureUserDir(userId) {
   return dir;
 }
 
+// EN: Normalizes any supported image format into PNG bytes, fixes EXIF rotation, and shrinks oversized images.
 // ET: Normaliseerib iga toetatud pildivormingu PNG-baitideks, parandab EXIF-pööramise ja vähendab liiga suuri pilte.
 // RU: Нормализует любой поддерживаемый формат изображения в PNG-байты, исправляет EXIF-поворот и уменьшает слишком большие изображения.
 async function toPngBuffer(buffer, mimetype) {
@@ -37,6 +39,7 @@ async function toPngBuffer(buffer, mimetype) {
   return pipeline.png({ compressionLevel: 6 }).toBuffer();
 }
 
+// EN: Removes the image background with an ONNX model, saves both the original and the processed PNG, and returns their paths/URLs.
 // ET: Eemaldab pildilt ONNX-mudeliga tausta, salvestab nii originaali kui ka töödeldud PNG-i ja tagastab nende teed/URL-id.
 // RU: Удаляет фон с изображения с помощью ONNX-модели, сохраняет и оригинал, и обработанный PNG, возвращая их пути/URL.
 async function removeBackground(buffer, mimetype, userId, itemId) {
@@ -70,6 +73,7 @@ async function removeBackground(buffer, mimetype, userId, itemId) {
   };
 }
 
+// EN: Deletes a file safely — refuses to act outside UPLOAD_DIR and ignores a missing-file error.
 // ET: Kustutab faili turvaliselt — keeldub midagi tegemast väljaspool UPLOAD_DIR ja eirab puuduva faili viga.
 // RU: Безопасно удаляет файл — отказывается работать вне UPLOAD_DIR и игнорирует ошибку отсутствующего файла.
 async function deleteFileSafe(urlOrPath) {
@@ -93,6 +97,7 @@ async function deleteFileSafe(urlOrPath) {
   }
 }
 
+// EN: Commits a previously prepared (preview) image to its permanent location, skipping the slow background removal.
 // ET: Kinnitab varem ettevalmistatud (eelvaate) pildi püsivasse kohta, jättes vahele aeglase tausta eemaldamise.
 // RU: Закрепляет ранее подготовленное (для предпросмотра) изображение на постоянное место, пропуская медленное удаление фона.
 async function commitStagedImage({ stagedUrl, userId, newBasename }) {
@@ -125,6 +130,7 @@ async function commitStagedImage({ stagedUrl, userId, newBasename }) {
   return `${userPrefix}${newBasename}`;
 }
 
+// EN: Analyzes a processed image buffer and returns the detected color info (Phase 1 — color only).
 // ET: Analüüsib töödeldud pildi puhvrit ja tagastab tuvastatud värviinfo (Faas 1 — ainult värv).
 // RU: Анализирует буфер обработанного изображения и возвращает определённую информацию о цвете (Фаза 1 — только цвет).
 async function analyzeImage(processedBuffer) {
@@ -132,9 +138,7 @@ async function analyzeImage(processedBuffer) {
   return { color };
 }
 
-// Recursively removes a user's upload directory. Used by the user-delete
-// cascade. Best effort — a missing dir is fine (ENOENT swallowed); any other
-// failure is logged so admin sees orphan files in the host volume.
+// EN: Recursively removes a user's upload directory; used in the user-delete cascade. Best effort — a missing dir is fine (ENOENT swallowed); any other failure is logged.
 // ET: Kustutab rekursiivselt kasutaja üleslaadimiskausta; kasutatakse kasutaja kustutamise kaskaadis.
 // RU: Рекурсивно удаляет папку загрузок пользователя; используется в каскаде удаления пользователя.
 async function deleteUserUploadDir(userId) {
@@ -154,6 +158,7 @@ async function deleteUserUploadDir(userId) {
   }
 }
 
+// EN: Cleans up old orphaned upload files that no clothing item references anymore.
 // ET: Koristab vanad orvuks jäänud üleslaadimisfailid, millele ükski rõivaese enam ei viita.
 // RU: Удаляет старые осиротевшие файлы загрузок, на которые больше не ссылается ни одна вещь.
 async function cleanupOrphanUploads({ maxAgeMs = 60 * 60 * 1000 } = {}) {
@@ -186,6 +191,7 @@ async function cleanupOrphanUploads({ maxAgeMs = 60 * 60 * 1000 } = {}) {
         .find({ owner: userId }, 'imageUrl originalImageUrl')
         .lean();
     } catch {
+      // EN: CastError — the folder name is not an ObjectId; treat a folder with no references as if there were none.
       // ET: CastError — kausta nimi pole ObjectId; käsitle viideteta kausta puhul nagu viiteid poleks.
       // RU: CastError — имя папки не ObjectId; считаем, что ссылок нет, и папку можно очистить.
     }

@@ -15,6 +15,7 @@ const router = express.Router();
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS, 10) || 12;
 const MAX_USERS = parseInt(process.env.MAX_USERS, 10) || 20;
 
+// EN: GET / — admin request that returns all users along with each one's clothing item count.
 // ET: GET / — admin-päring, mis tagastab kõik kasutajad koos igaühe rõivaesemete arvuga.
 // RU: GET / — запрос администратора, возвращающий всех пользователей вместе с количеством вещей у каждого.
 router.get('/', requireAuth, requireAdmin, async (_req, res, next) => {
@@ -40,6 +41,7 @@ router.get('/', requireAuth, requireAdmin, async (_req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// EN: POST / — an admin creates a new user; checks the user limit and the uniqueness of name/email.
 // ET: POST / — admin loob uue kasutaja; kontrollib kasutajalimiiti ning nime/e-posti unikaalsust.
 // RU: POST / — администратор создаёт нового пользователя; проверяет лимит пользователей и уникальность имени/email.
 router.post('/',
@@ -88,6 +90,7 @@ router.post('/',
   }
 );
 
+// EN: DELETE /:id — an admin deletes a user along with all of their data and files; the last admin cannot be deleted.
 // ET: DELETE /:id — admin kustutab kasutaja koos kõigi tema andmete ja failidega; viimast admini kustutada ei saa.
 // RU: DELETE /:id — администратор удаляет пользователя со всеми его данными и файлами; последнего админа удалить нельзя.
 router.delete('/:id',
@@ -125,6 +128,7 @@ router.delete('/:id',
   }
 );
 
+// EN: GET /:id/items — admin request that returns all clothing items of a specific user.
 // ET: GET /:id/items — admin-päring, mis tagastab konkreetse kasutaja kõik rõivaesemed.
 // RU: GET /:id/items — запрос администратора, возвращающий все вещи конкретного пользователя.
 router.get('/:id/items',

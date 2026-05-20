@@ -32,10 +32,12 @@ const CATEGORY_SEED = [
   { parent: 'Aksessuaarid',                 child: 'Mütsid' },
 ];
 
+// EN: Logging helper that prepends a mode marker ([DRY] or [RUN]) to the message.
 // ET: Logimisabiline, mis lisab teate ette režiimimärgise ([DRY] või [RUN]).
 // RU: Помощник логирования, добавляющий перед сообщением метку режима ([DRY] или [RUN]).
 const log = (...a) => console.log(DRY_RUN ? '[DRY]' : '[RUN]', ...a);
 
+// EN: Removes the user's upload directory from disk if CLEANUP_DELETE_UPLOADS is enabled.
 // ET: Eemaldab kasutaja üleslaadimiskausta kettalt, kui CLEANUP_DELETE_UPLOADS on sisse lülitatud.
 // RU: Удаляет папку загрузок пользователя с диска, если включён CLEANUP_DELETE_UPLOADS.
 async function rmUploads(userId) {
@@ -49,6 +51,7 @@ async function rmUploads(userId) {
   }
 }
 
+// EN: Deletes a user together with all of their items, outfits, collections, and uploads.
 // ET: Kustutab kasutaja koos kõigi tema esemete, komplektide, kollektsioonide ja üleslaadimistega.
 // RU: Удаляет пользователя вместе со всеми его вещами, образами, коллекциями и загрузками.
 async function purgeUser(user) {
@@ -72,6 +75,7 @@ async function purgeUser(user) {
   await User.deleteOne({ _id: user._id });
 }
 
+// EN: Ensures a user exists with the correct role — creates them if needed or fixes the role.
 // ET: Tagab kasutaja olemasolu õige rolliga — loob ta vajadusel või parandab rolli.
 // RU: Гарантирует существование пользователя с нужной ролью — создаёт его при необходимости или исправляет роль.
 async function ensureUser(spec) {
@@ -106,6 +110,7 @@ async function ensureUser(spec) {
   });
 }
 
+// EN: Clears all of a user's data (items, outfits, collections), keeping the account itself.
 // ET: Tühjendab kasutaja kõik andmed (esemed, komplektid, kollektsioonid), jättes konto alles.
 // RU: Очищает все данные пользователя (вещи, образы, коллекции), оставляя сам аккаунт.
 async function emptyUserData(user, label) {
@@ -129,6 +134,7 @@ async function emptyUserData(user, label) {
   await rmUploads(user.userId || user._id);
 }
 
+// EN: Brings the "test" user's items into a canonical state — exactly one item per main category.
 // ET: Viib "test"-kasutaja esemed kanoonilisse seisu — täpselt üks ese iga põhikategooria kohta.
 // RU: Приводит вещи пользователя "test" к каноническому состоянию — ровно одна вещь на каждую основную категорию.
 async function reconcileTestCategories(testUser) {
@@ -143,6 +149,7 @@ async function reconcileTestCategories(testUser) {
 
   const wantedParents = new Set(CATEGORY_SEED.map((c) => c.parent));
 
+  // EN: 1) remove items whose main category is not in the canonical list.
   // ET: 1) eemalda esemed, mille põhikategooria ei kuulu kanoonilisse loendisse.
   // RU: 1) удалить вещи, основная категория которых не входит в канонический список.
   for (const [parent, list] of byParent.entries()) {
@@ -152,6 +159,7 @@ async function reconcileTestCategories(testUser) {
     }
   }
 
+  // EN: 2) for each canonical main category: keep one item, create it if missing.
   // ET: 2) iga kanoonilise põhikategooria kohta: jäta alles üks ese, loo see, kui puudub.
   // RU: 2) для каждой канонической основной категории: оставить одну вещь, создать, если её нет.
   for (const seed of CATEGORY_SEED) {
@@ -181,6 +189,7 @@ async function reconcileTestCategories(testUser) {
   }
 }
 
+// EN: Verifies the final result — whether users and their data match the expected canonical layout.
 // ET: Kontrollib lõpptulemust — kas kasutajad ja nende andmed vastavad oodatud kanoonilisele paigutusele.
 // RU: Проверяет итоговый результат — соответствуют ли пользователи и их данные ожидаемой канонической раскладке.
 async function verify() {
@@ -232,6 +241,7 @@ async function verify() {
   return ok;
 }
 
+// EN: Main script runner — performs data migration, user cleanup, and the final check.
 // ET: Skripti peakäivitaja — sooritab andmete migratsiooni, kasutajate puhastuse ja lõppkontrolli.
 // RU: Главный запуск скрипта — выполняет миграцию данных, очистку пользователей и итоговую проверку.
 (async () => {
@@ -239,6 +249,7 @@ async function verify() {
     await connectDB(process.env.MONGO_URI);
     console.log(`Connected. Mode: ${DRY_RUN ? 'DRY RUN' : 'APPLY'}\n`);
 
+    // EN: 0) one-time schema migration — backfill the missing updatedAt field on old Collection documents.
     // ET: 0) ühekordne skeemimigratsioon — täida vanadel Collection-dokumentidel puuduv updatedAt väli.
     // RU: 0) одноразовая миграция схемы — заполнить отсутствующее поле updatedAt у старых документов Collection.
     const legacy = await Collection.countDocuments({ updatedAt: { $exists: false } });
@@ -254,6 +265,7 @@ async function verify() {
       log('No legacy Collection documents missing updatedAt');
     }
 
+    // EN: 1) remove all users except the three canonical accounts.
     // ET: 1) eemalda kõik kasutajad peale kolme kanoonilise konto.
     // RU: 1) удалить всех пользователей, кроме трёх канонических аккаунтов.
     const keepUsernames = Object.values(KEEP).map((u) => u.username);
@@ -261,24 +273,29 @@ async function verify() {
     log(`Found ${others.length} user(s) to purge`);
     for (const u of others) await purgeUser(u);
 
+    // EN: 2) ensure the three canonical accounts exist with the correct roles.
     // ET: 2) taga kolme kanoonilise konto olemasolu õigete rollidega.
     // RU: 2) обеспечить наличие трёх канонических аккаунтов с правильными ролями.
     const admin = await ensureUser(KEEP.admin);
     const aleks = await ensureUser(KEEP.aleks);
     const test  = await ensureUser(KEEP.test);
 
+    // EN: 3) admin — no data changes; the admin role itself already grants visibility.
     // ET: 3) admin — andmeid ei muudeta; admin-roll annab nähtavuse juba ise.
     // RU: 3) admin — данные не меняются; роль admin уже сама даёт видимость.
     log(`"admin" visibility is enforced by role gate — no data changes needed`);
 
+    // EN: 4) aleks — zero items, outfits, and collections.
     // ET: 4) aleks — null eset, komplekti ja kollektsiooni.
     // RU: 4) aleks — ноль вещей, образов и коллекций.
     await emptyUserData(aleks, 'aleks');
 
+    // EN: 5) test — exactly one item per main category.
     // ET: 5) test — täpselt üks ese iga põhikategooria kohta.
     // RU: 5) test — ровно одна вещь на каждую основную категорию.
     await reconcileTestCategories(test);
 
+    // EN: 6) check the result.
     // ET: 6) tulemuse kontroll.
     // RU: 6) проверка результата.
     const ok = await verify();

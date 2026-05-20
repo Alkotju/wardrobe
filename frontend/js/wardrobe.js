@@ -22,12 +22,14 @@
       children: ['Kotid', 'Ehted', 'Vööd', 'Mütsid', 'Kindad', 'Päikeseprillid'] },
   };
 
+  // EN: Returns the icon name for a main category; the default value "shirt" for an unknown category.
   // ET: Tagastab põhikategooriale vastava ikooni nime; tundmatu kategooria korral vaikeväärtuse "shirt".
   // RU: Возвращает имя иконки для основной категории; для неизвестной категории — значение по умолчанию "shirt".
   function categoryIcon(parent) {
     return (CATEGORY_TREE[parent] && CATEGORY_TREE[parent].icon) || 'shirt';
   }
 
+  // EN: Escapes HTML special characters so user input can be safely inserted via innerHTML (XSS protection).
   // ET: Varjestab HTML-i erimärgid, et kasutaja sisendit saaks ohutult innerHTML-i kaudu lisada (XSS-kaitse).
   // RU: Экранирует спецсимволы HTML, чтобы ввод пользователя можно было безопасно вставлять через innerHTML (защита от XSS).
   function esc(s) {
@@ -39,12 +41,14 @@
       .replace(/'/g, '&#39;');
   }
 
+  // EN: Returns the color only if it is a valid hex value (#RGB/#RRGGBB/#RRGGBBAA); otherwise an empty string.
   // ET: Tagastab värvi ainult siis, kui see on kehtiv hex-väärtus (#RGB/#RRGGBB/#RRGGBBAA); muidu tühja stringi.
   // RU: Возвращает цвет только если это допустимое hex-значение (#RGB/#RRGGBB/#RRGGBBAA); иначе пустую строку.
   function safeHex(s) {
     return /^#[0-9a-f]{3,8}$/i.test(String(s || '')) ? String(s) : '';
   }
 
+  // EN: Loads clothing items from the server (for an admin, the selected user's items) and stores them in state.
   // ET: Laadib serverist rõivaesemed (admini puhul valitud kasutaja omad) ja salvestab need olekusse.
   // RU: Загружает вещи с сервера (для админа — вещи выбранного пользователя) и сохраняет их в состояние.
   async function loadItems() {
@@ -61,6 +65,7 @@
     }
   }
 
+  // EN: Returns the client-side filtered clothing items based on the current filters (search, color, category, material).
   // ET: Tagastab kliendipoolselt filtreeritud rõivaesemed praeguste filtrite (otsing, värv, kategooria, materjal) põhjal.
   // RU: Возвращает отфильтрованные на стороне клиента вещи по текущим фильтрам (поиск, цвет, категория, материал).
   function visibleItems() {
@@ -87,6 +92,7 @@
     });
   }
 
+  // EN: Renders the wardrobe page, binds events, loads the data, and returns a cleanup function.
   // ET: Joonistab garderoobi lehe, seob sündmused, laadib andmed ja tagastab koristusfunktsiooni.
   // RU: Отрисовывает страницу гардероба, привязывает события, загружает данные и возвращает функцию очистки.
   function render() {
@@ -106,6 +112,7 @@
     return () => { offItems(); offFilters(); };
   }
 
+  // EN: Builds and returns the wardrobe page HTML markup (header, filter bar, grid, add button).
   // ET: Koostab ja tagastab garderoobi lehe HTML-märgistuse (päis, filtririba, ruudustik, lisamisnupp).
   // RU: Формирует и возвращает HTML-разметку страницы гардероба (шапка, панель фильтров, сетка, кнопка добавления).
   function pageMarkup() {
@@ -144,6 +151,7 @@
             + '<i data-lucide="plus"></i>Add item</button>');
   }
 
+  // EN: Binds the filter bar events — the search field, filter buttons, and the exit-admin-view button.
   // ET: Seob filtririba sündmused — otsinguväli, filtrinupud ja admini vaatest väljumise nupp.
   // RU: Привязывает события панели фильтров — поле поиска, кнопки фильтров и кнопку выхода из режима админа.
   function wireFilterBar(view) {
@@ -166,6 +174,7 @@
     }
   }
 
+  // EN: Binds the "Add item" buttons (both the floating FAB and the header button) to the add-item modal.
   // ET: Seob "Lisa ese" nupud (nii hõljuva FAB-i kui ka päisenupu) eseme lisamise modaaliga.
   // RU: Привязывает кнопки «Добавить вещь» (плавающую FAB и кнопку в шапке) к модальному окну добавления вещи.
   function wireFabAndCards(view) {
@@ -176,6 +185,7 @@
     if (headerBtn) headerBtn.addEventListener('click', openNew);
   }
 
+  // EN: Repaints the card grid of visible items and binds each card's clicks (open, edit, delete).
   // ET: Joonistab nähtavate esemete kaardiruudustiku uuesti ja seob iga kaardi klikid (avamine, muutmine, kustutamine).
   // RU: Перерисовывает сетку карточек видимых вещей и привязывает клики по каждой карточке (открытие, изменение, удаление).
   function repaintGrid() {
@@ -231,6 +241,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Builds the HTML of one clothing item card (image, ID label, weather badges, color, category, material).
   // ET: Koostab ühe rõivaeseme kaardi HTML-i (pilt, ID-silt, ilmamärgised, värv, kategooria, materjal).
   // RU: Формирует HTML одной карточки вещи (изображение, метка ID, погодные значки, цвет, категория, материал).
   function cardMarkup(item) {
@@ -287,6 +298,7 @@
       + '</article>';
   }
 
+  // EN: Builds the row of action buttons (Edit and Delete) at the bottom of the card.
   // ET: Koostab kaardi alaossa tegevusnuppude rea (Muuda ja Kustuta).
   // RU: Формирует строку кнопок действий в нижней части карточки (Изменить и Удалить).
   function cardActionsHtml(escapedId) {
@@ -298,6 +310,7 @@
       + '</div>';
   }
 
+  // EN: Builds one info row with an icon and escaped text in the card body.
   // ET: Koostab ühe info-rea ikooni ja varjestatud tekstiga kaardi kehasse.
   // RU: Формирует одну строку информации с иконкой и экранированным текстом в теле карточки.
   function infoRow(iconHtml, text) {
@@ -307,6 +320,7 @@
       + '</div>';
   }
 
+  // EN: Removes the leading zeros from an item ID so the short label stays readable.
   // ET: Eemaldab eseme ID eest tühistavad nullid, et lühike silt jääks loetavaks.
   // RU: Убирает ведущие нули из ID вещи, чтобы короткая метка оставалась читаемой.
   function infoIdShort(id) {
@@ -314,6 +328,7 @@
     return s.replace(/^0+(?=\d)/, '');
   }
 
+  // EN: Opens a mini modal for choosing a filter (color, material, or category) from the available values.
   // ET: Avab mini-modaali filtri valimiseks (värv, materjal või kategooria) saadaolevate väärtuste seast.
   // RU: Открывает мини-модальное окно для выбора фильтра (цвет, материал или категория) из доступных значений.
   function openFilterPicker(kind) {
@@ -362,6 +377,7 @@
     });
   }
 
+  // EN: Repaints the active filter chips along with their remove buttons.
   // ET: Joonistab uuesti aktiivsete filtrite sildid koos nende eemaldamise nuppudega.
   // RU: Перерисовывает метки активных фильтров вместе с кнопками их удаления.
   function repaintActiveChips() {
@@ -389,6 +405,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Opens the large photo view (lightbox) of an item along with its metadata; read-only for the user.
   // ET: Avab eseme suure foto vaate (lightbox) koos eseme metaandmetega; kasutaja jaoks ainult lugemiseks.
   // RU: Открывает крупный просмотр фото вещи (lightbox) вместе с метаданными вещи; для пользователя только для чтения.
   function openItemLightbox(item) {
@@ -473,6 +490,7 @@
 
   let modalState = null;
 
+  // EN: Opens the add-or-edit item modal, preparing the form state from an existing item or empty fields.
   // ET: Avab eseme lisamise või muutmise modaali, valmistades ette vormi oleku olemasoleva eseme või tühjade väljadega.
   // RU: Открывает модальное окно добавления или изменения вещи, подготавливая состояние формы из существующей вещи или пустых полей.
   function openItemModal(item) {
@@ -513,6 +531,7 @@
     });
   }
 
+  // EN: Builds the HTML of the item form (image area, name, category, color, material, weather badges, comment).
   // ET: Koostab eseme vormi HTML-i (pildiala, nimi, kategooria, värv, materjal, ilmamärgised, kommentaar).
   // RU: Формирует HTML формы вещи (зона изображения, имя, категория, цвет, материал, погодные значки, комментарий).
   function itemFormMarkup(s) {
@@ -590,6 +609,7 @@
       + '</form>';
   }
 
+  // EN: Binds the item form events — image upload, drag-and-drop, category/color selection, and form submission.
   // ET: Seob eseme vormi sündmused — pildi üleslaadimine, lohistamine, kategooria/värvi valik ja vormi esitamine.
   // RU: Привязывает события формы вещи — загрузку изображения, перетаскивание, выбор категории/цвета и отправку формы.
   function wireItemForm(modal) {
@@ -655,6 +675,7 @@
       await submitItemForm(form);
     });
 
+    // EN: Renders the image upload area content — the preview image, a placeholder, or an upload hint.
     // ET: Joonistab pildi üleslaadimisala sisu — eelvaatepildi, kohatäite või üleslaadimisvihje.
     // RU: Отрисовывает содержимое зоны загрузки изображения — предпросмотр, заполнитель или подсказку загрузки.
     function paintUploadContent() {
@@ -678,6 +699,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // EN: Handles the chosen image file — shows an instant preview and uploads the file to the server for background removal and color analysis.
     // ET: Töötleb valitud pildifaili — kuvab kohese eelvaate ja laadib faili serverisse tausta eemaldamiseks ja värvianalüüsiks.
     // RU: Обрабатывает выбранный файл изображения — показывает мгновенный предпросмотр и отправляет файл на сервер для удаления фона и анализа цвета.
     async function handleFileChosen(f) {
@@ -727,6 +749,7 @@
           }
         }
       } catch (err) {
+        // EN: Silent error — the file will still be sent with the form on save.
         // ET: Vaikne viga — fail saadetakse ikkagi koos vormiga salvestamisel.
         // RU: Тихая ошибка — файл всё равно будет отправлен вместе с формой при сохранении.
       } finally {
@@ -735,6 +758,7 @@
     }
   }
 
+  // EN: Submits the item form — builds FormData and sends the create or update request to the server.
   // ET: Esitab eseme vormi — koostab FormData ja saadab serverisse loomis- või uuendamispäringu.
   // RU: Отправляет форму вещи — формирует FormData и посылает на сервер запрос создания или обновления.
   async function submitItemForm(form) {
@@ -792,6 +816,7 @@
     }
   }
 
+  // EN: Opens the shared modal window with the given title, body, and footer content and binds the close handlers.
   // ET: Avab jagatud modaalakna antud pealkirja, keha ja jaluse sisuga ning seob sulgemise käsitlejad.
   // RU: Открывает общее модальное окно с заданным заголовком, телом и подвалом и привязывает обработчики закрытия.
   function openModal({ title, bodyHtml, footerHtml, onMount, modifier }) {
@@ -820,6 +845,7 @@
     if (typeof onMount === 'function') onMount(root);
   }
 
+  // EN: Closes the shared modal window, clears its content, and removes the event handlers.
   // ET: Sulgeb jagatud modaalakna, tühjendab selle sisu ja eemaldab sündmuste käsitlejad.
   // RU: Закрывает общее модальное окно, очищает его содержимое и снимает обработчики событий.
   function closeModal() {
@@ -831,11 +857,13 @@
     document.removeEventListener('keydown', escKey);
   }
 
+  // EN: Closes the modal if the click hit the backdrop (outside the modal content).
   // ET: Sulgeb modaali, kui klikk tabas tausta (modaali sisu kõrvalt).
   // RU: Закрывает модальное окно, если клик пришёлся по фону (вне содержимого модального окна).
   function backdropClick(e) {
     if (e.target.id === 'modal-root') closeModal();
   }
+  // EN: Closes the modal when the Escape key is pressed.
   // ET: Sulgeb modaali, kui vajutati Escape-klahvi.
   // RU: Закрывает модальное окно при нажатии клавиши Escape.
   function escKey(e) {

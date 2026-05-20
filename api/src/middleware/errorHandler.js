@@ -1,5 +1,6 @@
 const multer = require('multer');
 
+// EN: Central error handler that converts errors (Multer, validation, generic) into a suitable HTTP status and JSON response.
 // ET: Keskne veakäsitleja, mis teisendab vead (Multer, valideerimine, üldised) sobivaks HTTP-staatuseks ja JSON-vastuseks.
 // RU: Центральный обработчик ошибок, преобразующий ошибки (Multer, валидации, общие) в подходящий HTTP-статус и JSON-ответ.
 function errorHandler(err, _req, res, _next) {

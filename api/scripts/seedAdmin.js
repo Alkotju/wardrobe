@@ -8,6 +8,7 @@ const { nextSequentialId } = require('../src/utils/sequentialId');
 
 const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS, 10) || 12;
 
+// EN: Startup script that creates the initial admin user if no such user exists yet in the database.
 // ET: Käivitusskript, mis loob esmase admin-kasutaja, kui sellist veel andmebaasis pole.
 // RU: Стартовый скрипт, создающий первоначального пользователя-администратора, если такого ещё нет в базе.
 (async () => {

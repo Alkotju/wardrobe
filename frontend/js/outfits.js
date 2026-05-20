@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  // EN: Short function for escaping HTML special characters (uses the wardrobe module's esc function).
   // ET: Lühifunktsioon HTML-i erimärkide varjestamiseks (kasutab wardrobe mooduli esc-funktsiooni).
   // RU: Короткая функция для экранирования спецсимволов HTML (использует функцию esc модуля wardrobe).
   const esc = (s) => App.wardrobe.esc(s);
@@ -9,6 +10,7 @@
   let editingOutfit = null;
   let canvasState = [];
 
+  // EN: Renders the outfits page, binds the toolbar, enables dragging, and loads the data; returns a cleanup function.
   // ET: Joonistab komplektide lehe, seob tööriistariba, käivitab lohistamise ja laadib andmed; tagastab koristusfunktsiooni.
   // RU: Отрисовывает страницу образов, привязывает панель инструментов, включает перетаскивание и загружает данные; возвращает функцию очистки.
   function render() {
@@ -39,6 +41,7 @@
     };
   }
 
+  // EN: Builds and returns the outfits page HTML markup (header, moodboard editor, saved outfits grid).
   // ET: Koostab ja tagastab komplektide lehe HTML-märgistuse (päis, moodboard-redaktor, salvestatud komplektide ruudustik).
   // RU: Формирует и возвращает HTML-разметку страницы образов (шапка, редактор-муудборд, сетка сохранённых образов).
   function pageMarkup() {
@@ -81,6 +84,7 @@
       + '</button>';
   }
 
+  // EN: Binds the editor toolbar buttons (add items, clear, save, new outfit, open/close editor).
   // ET: Seob redaktori tööriistariba nupud (lisa esemeid, tühjenda, salvesta, uus komplekt, ava/sulge redaktor).
   // RU: Привязывает кнопки панели инструментов редактора (добавить вещи, очистить, сохранить, новый образ, открыть/закрыть редактор).
   function wireToolbar() {
@@ -97,6 +101,7 @@
     if (newBtn) newBtn.addEventListener('click', startNewOutfit);
   }
 
+  // EN: Starts creating a new outfit — clears the canvas (asking for confirmation if unsaved) and opens the editor.
   // ET: Alustab uue komplekti loomist — tühjendab lõuendi (küsides kinnitust, kui pooleli) ja avab redaktori.
   // RU: Начинает создание нового образа — очищает холст (запрашивая подтверждение, если есть несохранённое) и открывает редактор.
   function startNewOutfit() {
@@ -110,6 +115,7 @@
     openEditor();
   }
 
+  // EN: Opens the outfit editor and scrolls it into view.
   // ET: Avab komplekti redaktori ja kerib selle vaatesse.
   // RU: Открывает редактор образа и прокручивает его в зону видимости.
   function openEditor() {
@@ -120,6 +126,7 @@
     }
   }
 
+  // EN: Closes the outfit editor (mainly in the mobile view).
   // ET: Sulgeb komplekti redaktori (peamiselt mobiilivaates).
   // RU: Закрывает редактор образа (в основном в мобильном виде).
   function closeEditor() {
@@ -127,12 +134,14 @@
     if (editor) editor.classList.remove('is-open');
   }
 
+  // EN: Ensures the clothing items are loaded into state; loads them if the list is still empty.
   // ET: Tagab, et rõivaesemed on olekusse laaditud; laadib need, kui nimekiri on veel tühi.
   // RU: Гарантирует, что вещи загружены в состояние; загружает их, если список ещё пуст.
   async function ensureItemsLoaded() {
     if ((App.store.state.items || []).length) return;
     return App.wardrobe.loadItems();
   }
+  // EN: Loads the user's outfits from the server and stores them in state.
   // ET: Laadib serverist kasutaja komplektid ja salvestab need olekusse.
   // RU: Загружает образы пользователя с сервера и сохраняет их в состояние.
   async function loadOutfits() {
@@ -145,6 +154,7 @@
     }
   }
 
+  // EN: Repaints the moodboard canvas, placing the current state's items at their saved positions.
   // ET: Joonistab moodboard-lõuendi uuesti, asetades praeguse oleku esemed nende salvestatud asukohtadesse.
   // RU: Перерисовывает холст-муудборд, размещая вещи текущего состояния на их сохранённых позициях.
   function repaintCanvas() {
@@ -167,6 +177,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Creates the DOM element of one item on the canvas with an image, remove button, and position.
   // ET: Loob lõuendile ühe eseme DOM-elemendi koos pildi, eemaldusnupu ja asukohaga.
   // RU: Создаёт DOM-элемент одной вещи на холсте с изображением, кнопкой удаления и позицией.
   function makeBoardItem(item, entry) {
@@ -200,6 +211,7 @@
     return node;
   }
 
+  // EN: Brings the selected item to the front of the canvas by giving it the highest z-index.
   // ET: Tõstab valitud eseme lõuendil kõige ette, andes talle suurima z-indeksi.
   // RU: Поднимает выбранную вещь на холсте на передний план, присваивая ей наибольший z-индекс.
   function bringToFront(itemId) {
@@ -211,12 +223,14 @@
     if (node) node.style.zIndex = String(maxZ + 1);
   }
 
+  // EN: Escapes a string so it can be safely used in a CSS selector.
   // ET: Varjestab stringi, et seda saaks ohutult kasutada CSS-selektoris.
   // RU: Экранирует строку, чтобы её можно было безопасно использовать в CSS-селекторе.
   function cssEsc(s) {
     return (window.CSS && CSS.escape) ? CSS.escape(s) : String(s).replace(/"/g, '\\"');
   }
 
+  // EN: Initializes interact.js dragging so items can be moved around the canvas.
   // ET: Initsialiseerib interact.js-i lohistamise, et esemeid saaks lõuendil ringi liigutada.
   // RU: Инициализирует перетаскивание через interact.js, чтобы вещи можно было двигать по холсту.
   function initInteract() {
@@ -260,6 +274,7 @@
     void rect;
   }
 
+  // EN: Removes the interact.js drag bindings to avoid memory leaks when switching pages.
   // ET: Eemaldab interact.js-i lohistamissidumised, et vältida lehe vahetamisel mälulekkeid.
   // RU: Снимает привязки перетаскивания interact.js, чтобы избежать утечек памяти при смене страницы.
   function tearDownInteract() {
@@ -267,6 +282,7 @@
     bindings = [];
   }
 
+  // EN: Opens the multi-select modal for adding clothing items to the outfit canvas.
   // ET: Avab mitmikvaliku modaali rõivaesemete lisamiseks komplekti lõuendile.
   // RU: Открывает модальное окно множественного выбора для добавления вещей на холст образа.
   function openItemPicker() {
@@ -303,6 +319,7 @@
     });
   }
 
+  // EN: Builds the HTML of one clothing item card for the selection modal, marking it selected if needed.
   // ET: Koostab valikumodaali jaoks ühe rõivaeseme kaardi HTML-i, märkides selle vajadusel valituks.
   // RU: Формирует HTML карточки одной вещи для модального окна выбора, помечая её выбранной при необходимости.
   function pickCardMarkup(item, isSelected) {
@@ -320,6 +337,7 @@
       + '</article>';
   }
 
+  // EN: Merges the selected items into the canvas — keeps existing positions and places new ones with an offset.
   // ET: Liidab valitud esemed lõuendile — säilitab olemasolevate asukohad ja paigutab uued nihkega.
   // RU: Объединяет выбранные вещи с холстом — сохраняет позиции существующих и размещает новые со смещением.
   function mergePickedIntoCanvas(selectedIds) {
@@ -341,6 +359,7 @@
     repaintCanvas();
   }
 
+  // EN: Clears the canvas after the user confirms and resets the outfit name.
   // ET: Tühjendab lõuendi pärast kasutaja kinnitust ja lähtestab komplekti nime.
   // RU: Очищает холст после подтверждения пользователя и сбрасывает имя образа.
   function clearCanvas() {
@@ -352,6 +371,7 @@
     repaintCanvas();
   }
 
+  // EN: Saves the current canvas as an outfit on the server — creates a new one or updates the existing one.
   // ET: Salvestab praeguse lõuendi komplektina serverisse — loob uue või uuendab olemasoleva.
   // RU: Сохраняет текущий холст как образ на сервере — создаёт новый или обновляет существующий.
   async function saveOutfit() {
@@ -394,6 +414,7 @@
     }
   }
 
+  // EN: Repaints the saved outfits grid and binds the load and delete buttons for each outfit.
   // ET: Joonistab salvestatud komplektide ruudustiku uuesti ja seob iga komplekti laadimise ja kustutamise nupud.
   // RU: Перерисовывает сетку сохранённых образов и привязывает кнопки загрузки и удаления для каждого образа.
   function repaintOutfitsGrid() {
@@ -440,6 +461,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Builds the HTML of one saved outfit card with a miniature preview of the item thumbnails.
   // ET: Koostab ühe salvestatud komplekti kaardi HTML-i koos esemete pisipiltide miniatuurse eelvaatega.
   // RU: Формирует HTML карточки одного сохранённого образа с миниатюрным предпросмотром эскизов вещей.
   function outfitCardMarkup(o, byId) {
@@ -472,6 +494,7 @@
       + '</article>';
   }
 
+  // EN: Loads a saved outfit onto the editor canvas for editing and opens the editor.
   // ET: Laadib salvestatud komplekti redaktori lõuendile muutmiseks ja avab redaktori.
   // RU: Загружает сохранённый образ на холст редактора для изменения и открывает редактор.
   function loadIntoCanvas(outfit) {

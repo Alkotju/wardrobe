@@ -32,18 +32,18 @@ function splitRGBA(width, height, left, right) {
 
 describe('analyzePixels — solid colours map to expected palette labels', () => {
   const cases = [
-    { name: 'pure black',  rgb: [0, 0, 0],       expect: 'Must' },
-    { name: 'pure white',  rgb: [255, 255, 255], expect: 'Valge' },
-    { name: 'mid grey',    rgb: [128, 128, 128], expect: 'Hall' },
-    { name: 'bright red',  rgb: [220, 30, 30],   expect: 'Punane' },
-    { name: 'bright blue', rgb: [40, 70, 200],   expect: 'Sinine' },
-    { name: 'forest green',rgb: [30, 130, 60],   expect: 'Roheline' },
-    { name: 'yellow',      rgb: [240, 200, 20],  expect: 'Kollane' },
-    { name: 'pink',        rgb: [240, 160, 190], expect: 'Roosa' },
-    { name: 'brown',       rgb: [120, 70, 30],   expect: 'Pruun' },
-    { name: 'beige',       rgb: [220, 200, 170], expect: 'Beež' },
-    { name: 'purple',      rgb: [140, 70, 180],  expect: 'Lilla' },
-    { name: 'orange',      rgb: [230, 120, 30],  expect: 'Oranž' },
+    { name: 'pure black',  rgb: [0, 0, 0],       expect: 'Черный' },
+    { name: 'pure white',  rgb: [255, 255, 255], expect: 'Белый' },
+    { name: 'mid grey',    rgb: [128, 128, 128], expect: 'Серый' },
+    { name: 'bright red',  rgb: [220, 30, 30],   expect: 'Красный' },
+    { name: 'bright blue', rgb: [40, 70, 200],   expect: 'Синий' },
+    { name: 'forest green',rgb: [30, 130, 60],   expect: 'Зеленый' },
+    { name: 'yellow',      rgb: [240, 200, 20],  expect: 'Желтый' },
+    { name: 'pink',        rgb: [240, 160, 190], expect: 'Розовый' },
+    { name: 'brown',       rgb: [120, 70, 30],   expect: 'Коричневый' },
+    { name: 'beige',       rgb: [220, 200, 170], expect: 'Бежевый' },
+    { name: 'purple',      rgb: [140, 70, 180],  expect: 'Лиловый' },
+    { name: 'orange',      rgb: [230, 120, 30],  expect: 'Оранжевый' },
   ];
 
   cases.forEach(({ name, rgb, expect: label }) => {
@@ -71,7 +71,7 @@ describe('analyzePixels — alpha and edge cases', () => {
       }
     }
     const out = analyzePixels(buf, { width: 16, height: 16, channels: 4 }, 1);
-    expect(out.label).toBe('Punane');
+    expect(out.label).toBe('Красный');
     // Confidence is computed over non-transparent pixels only — the red half is 100%.
     expect(out.confidence).toBeCloseTo(1, 1);
   });
@@ -88,7 +88,7 @@ describe('analyzePixels — alpha and edge cases', () => {
       buf[i * 3] = 220; buf[i * 3 + 1] = 30; buf[i * 3 + 2] = 30;
     }
     const out = analyzePixels(buf, { width: 8, height: 8, channels: 3 }, 1);
-    expect(out.label).toBe('Punane');
+    expect(out.label).toBe('Красный');
   });
 
   test('two-colour image picks the dominant by area', () => {
@@ -103,7 +103,7 @@ describe('analyzePixels — alpha and edge cases', () => {
       }
     }
     const out = analyzePixels(buf, { width: 16, height: 16, channels: 4 }, 1);
-    expect(out.label).toBe('Punane');
+    expect(out.label).toBe('Красный');
     expect(out.confidence).toBeGreaterThan(0.6);
     expect(out.confidence).toBeLessThan(0.9);
   });
@@ -121,7 +121,7 @@ describe('analyzePixels — alpha and edge cases', () => {
     const data = solidRGBA(16, 16, 30, 130, 60, 255);
     const out = analyzePixels(data, { width: 16, height: 16, channels: 4 }, 4);
     expect(out).not.toBeNull();
-    expect(out.label).toBe('Roheline');
+    expect(out.label).toBe('Зеленый');
   });
 });
 

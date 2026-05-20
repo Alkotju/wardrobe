@@ -1,10 +1,12 @@
 (function () {
   'use strict';
 
+  // EN: Short function for escaping HTML special characters (uses the wardrobe module's esc function).
   // ET: Lühifunktsioon HTML-i erimärkide varjestamiseks (kasutab wardrobe mooduli esc-funktsiooni).
   // RU: Короткая функция для экранирования спецсимволов HTML (использует функцию esc модуля wardrobe).
   const esc = (s) => App.wardrobe.esc(s);
 
+  // EN: Renders the collections page, binds the buttons, loads the data, and returns a cleanup function.
   // ET: Joonistab kollektsioonide lehe, seob nupud, laadib andmed ja tagastab koristusfunktsiooni.
   // RU: Отрисовывает страницу коллекций, привязывает кнопки, загружает данные и возвращает функцию очистки.
   function render() {
@@ -29,6 +31,7 @@
     return () => { offCol(); offItems(); };
   }
 
+  // EN: Builds and returns the collections page HTML markup (header, list, add button).
   // ET: Koostab ja tagastab kollektsioonide lehe HTML-märgistuse (päis, loend, lisamisnupp).
   // RU: Формирует и возвращает HTML-разметку страницы коллекций (шапка, список, кнопка добавления).
   function pageMarkup() {
@@ -45,6 +48,7 @@
       +   '<i data-lucide="plus"></i>Add collection</button>';
   }
 
+  // EN: Loads the user's collections from the server and stores them in state.
   // ET: Laadib serverist kasutaja kollektsioonid ja salvestab need olekusse.
   // RU: Загружает коллекции пользователя с сервера и сохраняет их в состояние.
   async function loadCollections() {
@@ -57,6 +61,7 @@
     }
   }
 
+  // EN: Repaints the collections list and binds the edit and delete buttons for each row.
   // ET: Joonistab kollektsioonide loendi uuesti ja seob iga rea muutmise ja kustutamise nupud.
   // RU: Перерисовывает список коллекций и привязывает кнопки изменения и удаления для каждой строки.
   function repaintList() {
@@ -101,6 +106,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Builds the HTML of one collection row (name, type, item count, thumbnails, action buttons).
   // ET: Koostab ühe kollektsiooni rea HTML-i (nimi, tüüp, esemete arv, pisipildid, tegevusnupud).
   // RU: Формирует HTML одной строки коллекции (имя, тип, количество вещей, эскизы, кнопки действий).
   function rowMarkup(c, byId) {
@@ -141,6 +147,7 @@
       + '</article>';
   }
 
+  // EN: Opens the create-or-edit collection modal, preparing the form state.
   // ET: Avab kollektsiooni loomise või muutmise modaali, valmistades ette vormi oleku.
   // RU: Открывает модальное окно создания или изменения коллекции, подготавливая состояние формы.
   function openCollectionForm(existing) {
@@ -158,6 +165,7 @@
     });
   }
 
+  // EN: Builds the HTML of the collection form body (name, type, item selection button).
   // ET: Koostab kollektsiooni vormi keha HTML-i (nimi, tüüp, esemete valiku nupp).
   // RU: Формирует HTML тела формы коллекции (имя, тип, кнопка выбора вещей).
   function formBodyHtml(state) {
@@ -184,6 +192,7 @@
       + '</form>';
   }
 
+  // EN: Builds the HTML of the collection form footer (Cancel and Save/Create buttons).
   // ET: Koostab kollektsiooni vormi jaluse HTML-i (Tühista ja Salvesta/Loo nupud).
   // RU: Формирует HTML подвала формы коллекции (кнопки Отмена и Сохранить/Создать).
   function formFooterHtml(isEdit) {
@@ -193,6 +202,7 @@
       + '</button>';
   }
 
+  // EN: Binds the collection form view events — field changes, item selection, and saving.
   // ET: Seob kollektsiooni vormivaate sündmused — väljade muudatused, esemete valik ja salvestamine.
   // RU: Привязывает события вида формы коллекции — изменения полей, выбор вещей и сохранение.
   function mountFormView(modal, state, isEdit) {
@@ -235,6 +245,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Switches the modal content from the form to the multi-select item view, preserving entered data.
   // ET: Vahetab modaali sisu vormilt esemete mitmikvaliku vaatele, säilitades sisestatud andmed.
   // RU: Переключает содержимое модального окна с формы на вид множественного выбора вещей, сохраняя введённые данные.
   function swapToPicker(modal, state, isEdit) {
@@ -275,6 +286,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Switches the modal content from the item selection view back to the collection form.
   // ET: Vahetab modaali sisu esemete valiku vaatelt tagasi kollektsiooni vormile.
   // RU: Переключает содержимое модального окна с вида выбора вещей обратно на форму коллекции.
   function swapToForm(modal, state, isEdit) {
@@ -290,6 +302,7 @@
     mountFormView(modal, state, isEdit);
   }
 
+  // EN: Builds the HTML of one clothing item card for the selection view, marking it selected if needed.
   // ET: Koostab valikuvaate jaoks ühe rõivaeseme kaardi HTML-i, märkides selle vajadusel valituks.
   // RU: Формирует HTML карточки одной вещи для вида выбора, помечая её выбранной при необходимости.
   function pickCardMarkup(item, isSelected) {

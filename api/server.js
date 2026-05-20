@@ -66,9 +66,11 @@ const ORPHAN_INTERVAL_MS = parseInt(process.env.ORPHAN_CLEANUP_INTERVAL_MS, 10)
 const ORPHAN_MAX_AGE_MS = parseInt(process.env.ORPHAN_MAX_AGE_MS, 10)
   || 60 * 60 * 1000;
 
+// EN: Starts a periodic background task that cleans up orphaned upload files.
 // ET: Käivitab perioodilise taustaülesande, mis koristab orvuks jäänud üleslaadimisfailid.
 // RU: Запускает периодическую фоновую задачу, которая очищает осиротевшие файлы загрузок.
 function startOrphanReaper() {
+  // EN: One cleanup cycle — runs the orphaned-file remover and logs a possible error.
   // ET: Üks koristustsükkel — käivitab orvuks jäänud failide eemaldaja ja logib võimaliku vea.
   // RU: Один цикл очистки — запускает удаление осиротевших файлов и логирует возможную ошибку.
   const tick = () => cleanupOrphanUploads({ maxAgeMs: ORPHAN_MAX_AGE_MS })

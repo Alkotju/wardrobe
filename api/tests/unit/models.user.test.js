@@ -10,7 +10,7 @@ describe('User model', () => {
     await expect(User.create({})).rejects.toThrow(/validation/i);
   });
 
-  test('normalises email to lowercase and trims whitespace', async () => {
+  test('normalises username and email to lowercase and trims whitespace', async () => {
     const u = await User.create({
       userId: '0000001',
       username: 'Aleks ',
@@ -18,7 +18,8 @@ describe('User model', () => {
       passwordHash: 'x',
     });
     expect(u.email).toBe('aleks@example.com');
-    expect(u.username).toBe('Aleks');
+    // username is stored lowercased so login is case-insensitive.
+    expect(u.username).toBe('aleks');
   });
 
   test('defaults role to "user"', async () => {

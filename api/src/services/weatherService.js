@@ -4,6 +4,7 @@ const FORECAST_TTL_SECONDS = 30 * 60;
 const cache = new NodeCache({ stdTTL: FORECAST_TTL_SECONDS, checkperiod: 120 });
 const USER_AGENT = process.env.YR_USER_AGENT || 'WardrobeApp/1.0 contact@example.com';
 
+// EN: Requests a weather forecast for the coordinates from yr.no, cached, and returns a 3-day summary.
 // ET: Pärib yr.no-st koordinaatide ilmaennustuse, vahemällu salvestatud kujul, ja tagastab 3 päeva kokkuvõtte.
 // RU: Запрашивает у yr.no прогноз погоды по координатам, с кэшированием, и возвращает сводку на 3 дня.
 async function fetchForecast(lat, lon) {
@@ -26,6 +27,7 @@ async function fetchForecast(lat, lon) {
   return days;
 }
 
+// EN: Groups the yr.no time series into days, computing each day's min/max temperature, precipitation, and weather symbol.
 // ET: Koondab yr.no ajaseeria päevadeks, arvutades iga päeva min/max temperatuuri, sademed ja ilmasümboli.
 // RU: Группирует временной ряд yr.no по дням, вычисляя для каждого мин/макс температуру, осадки и символ погоды.
 function summarizeDays(data, dayCount) {
@@ -64,6 +66,7 @@ function summarizeDays(data, dayCount) {
   }));
 }
 
+// EN: Requests an hourly weather forecast from yr.no and returns the cached hours with extended fields.
 // ET: Pärib yr.no-st tunnipõhise ilmaennustuse ja tagastab vahemällu salvestatuna laiendatud väljadega tunnid.
 // RU: Запрашивает у yr.no почасовой прогноз погоды и возвращает кэшированные часы с расширенными полями.
 async function fetchHourly(lat, lon, hours = 24) {
@@ -101,6 +104,7 @@ async function fetchHourly(lat, lon, hours = 24) {
   return out;
 }
 
+// EN: Geocodes a place name via Nominatim, returning matching locations with their coordinates.
 // ET: Geokodeerib kohanime Nominatimi kaudu, tagastades sobivad asukohad koos koordinaatidega.
 // RU: Геокодирует название места через Nominatim, возвращая подходящие локации с координатами.
 async function geocode(query) {

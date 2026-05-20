@@ -10,6 +10,7 @@
     }
   }
 
+  // EN: Returns the current user's JWT token from the state store, or null if the user is not logged in.
   // ET: Tagastab praeguse kasutaja JWT-märgi olekuhoidlast või null, kui kasutaja pole sisse logitud.
   // RU: Возвращает JWT-токен текущего пользователя из хранилища состояния или null, если пользователь не вошёл.
   function getToken() {
@@ -18,12 +19,14 @@
       : null;
   }
 
+  // EN: Checks whether the path is already absolute (http(s) or /uploads) and needs no /api prefix.
   // ET: Kontrollib, kas tee on juba absoluutne (http(s) või /uploads) ja ei vaja /api eesliidet.
   // RU: Проверяет, является ли путь уже абсолютным (http(s) или /uploads) и не требует ли префикса /api.
   function isAbsolute(path) {
     return /^(?:https?:)?\/\//.test(path) || path.startsWith('/uploads');
   }
 
+  // EN: Central fetch function — adds the authorization header, serializes the body, and throws an error on a non-2xx response.
   // ET: Keskne fetch-funktsioon — lisab autoriseerimispäise, serialiseerib keha ja viskab vea mitte-2xx vastuse korral.
   // RU: Центральная функция fetch — добавляет заголовок авторизации, сериализует тело и выбрасывает ошибку при ответе не 2xx.
   async function request(method, path, opts) {
@@ -68,6 +71,9 @@
     return parsed;
   }
 
+  // EN: Collection of thin wrappers around the REST API endpoints (auth, items, outfits, collections, weather, users).
+  // ET: Kogum õhukesi ümbriseid REST-API lõpp-punktide ümber (auth, esemed, komplektid, kollektsioonid, ilm, kasutajad).
+  // RU: Набор тонких обёрток вокруг конечных точек REST API (auth, вещи, образы, коллекции, погода, пользователи).
   const api = {
     ApiError,
 
@@ -117,6 +123,7 @@
       request('GET', '/users/' + encodeURIComponent(userId) + '/items'),
   };
 
+  // EN: Shows a short-lived notification (toast) at the edge of the screen that disappears on its own after a few seconds.
   // ET: Kuvab ekraani servas lühiajalise teate (toast), mis kustub mõne sekundi pärast iseenesest.
   // RU: Показывает у края экрана кратковременное уведомление (toast), которое само исчезает через несколько секунд.
   function toast(message, kind) {

@@ -1,10 +1,12 @@
 (function () {
   'use strict';
 
+  // EN: Short function for escaping HTML special characters (uses the wardrobe module's esc function).
   // ET: Lühifunktsioon HTML-i erimärkide varjestamiseks (kasutab wardrobe mooduli esc-funktsiooni).
   // RU: Короткая функция для экранирования спецсимволов HTML (использует функцию esc модуля wardrobe).
   const esc = (s) => App.wardrobe.esc(s);
 
+  // EN: Renders the admin panel page, binds the buttons, and loads the users table.
   // ET: Joonistab admini paneeli lehe, seob nupud ja laadib kasutajate tabeli.
   // RU: Отрисовывает страницу панели администратора, привязывает кнопки и загружает таблицу пользователей.
   function render() {
@@ -20,6 +22,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Builds and returns the admin page HTML markup (header, users table, add button).
   // ET: Koostab ja tagastab admini lehe HTML-märgistuse (päis, kasutajate tabel, lisamisnupp).
   // RU: Формирует и возвращает HTML-разметку страницы администратора (шапка, таблица пользователей, кнопка добавления).
   function pageMarkup() {
@@ -50,6 +53,7 @@
       +   '<i data-lucide="user-plus"></i>Add user</button>';
   }
 
+  // EN: Loads the user list from the server and renders the table with view and delete buttons.
   // ET: Laadib serverist kasutajate nimekirja ja joonistab tabeli koos vaatamise ja kustutamise nuppudega.
   // RU: Загружает список пользователей с сервера и отрисовывает таблицу с кнопками просмотра и удаления.
   async function loadUsers() {
@@ -82,6 +86,7 @@
     }
   }
 
+  // EN: Builds the HTML of one users-table row (name, email, role, item count, last login, actions).
   // ET: Koostab kasutajate tabeli ühe rea HTML-i (nimi, e-post, roll, esemete arv, viimane sisselogimine, tegevused).
   // RU: Формирует HTML одной строки таблицы пользователей (имя, email, роль, количество вещей, последний вход, действия).
   function rowMarkup(u, currentUserId) {
@@ -115,6 +120,7 @@
       + '</tr>';
   }
 
+  // EN: Opens a confirmation modal for deleting a user and performs the deletion after confirmation.
   // ET: Avab kinnitusmodaali kasutaja kustutamiseks ja sooritab kustutamise pärast kinnitust.
   // RU: Открывает модальное окно подтверждения удаления пользователя и выполняет удаление после подтверждения.
   function confirmDeleteUser(id, username) {
@@ -145,6 +151,7 @@
     });
   }
 
+  // EN: Opens the add-new-user modal and, on form submission, sends the creation request to the server.
   // ET: Avab uue kasutaja lisamise modaali ja saadab vormi esitamisel loomispäringu serverisse.
   // RU: Открывает модальное окно добавления нового пользователя и при отправке формы посылает запрос создания на сервер.
   function openAddUserModal() {

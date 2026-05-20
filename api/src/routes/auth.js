@@ -20,6 +20,7 @@ const loginLimiter = rateLimit({
   message: { error: 'Too many login attempts, try again later' },
 });
 
+// EN: POST /login — checks the username and password; on success returns a JWT token and the user data.
 // ET: POST /login — kontrollib kasutajanime ja parooli, tagastab edu korral JWT-märgi ja kasutaja andmed.
 // RU: POST /login — проверяет имя пользователя и пароль, при успехе возвращает JWT-токен и данные пользователя.
 router.post('/login',
@@ -56,6 +57,7 @@ router.post('/login',
   }
 );
 
+// EN: POST /logout — logout endpoint; there is no server-side state, it simply responds with status 204.
 // ET: POST /logout — väljalogimise lõpp-punkt; serveris seisu pole, vastab lihtsalt staatusega 204.
 // RU: POST /logout — конечная точка выхода; серверного состояния нет, просто отвечает статусом 204.
 router.post('/logout', (_req, res) => {

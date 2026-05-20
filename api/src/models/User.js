@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.set('toJSON', {
+  // EN: Transform function that removes the password hash from the JSON response so it is never sent to the client.
   // ET: Teisendusfunktsioon, mis eemaldab JSON-vastusest parooli räsi, et seda kunagi kliendile ei saadetaks.
   // RU: Функция преобразования, удаляющая хеш пароля из JSON-ответа, чтобы он никогда не попадал клиенту.
   transform: (_doc, ret) => {

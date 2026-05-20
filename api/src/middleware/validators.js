@@ -1,8 +1,10 @@
 const { validationResult } = require('express-validator');
 
+// EN: Factory function that wraps a set of express-validator rules into a single middleware.
 // ET: Tehasefunktsioon, mis pakib express-validatori reeglid üheks vahevaraks.
 // RU: Фабричная функция, оборачивающая набор правил express-validator в одно middleware.
 function runValidations(validations) {
+  // EN: Middleware that runs all validation rules and returns 400 if any errors are found.
   // ET: Vahevara, mis käivitab kõik valideerimisreeglid ja tagastab 400, kui leitakse vigu.
   // RU: Middleware, который выполняет все правила валидации и возвращает 400 при наличии ошибок.
   return async function validate(req, res, next) {

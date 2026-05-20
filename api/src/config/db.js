@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// EN: Opens a connection to the MongoDB database using the given URI and returns the connection object.
 // ET: Loob ühenduse MongoDB andmebaasiga antud URI järgi ja tagastab ühenduse objekti.
 // RU: Устанавливает соединение с базой данных MongoDB по заданному URI и возвращает объект соединения.
 async function connectDB(uri) {

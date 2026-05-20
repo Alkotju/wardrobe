@@ -1,5 +1,6 @@
 const ClothingItem = require('../models/ClothingItem');
 
+// EN: Checks that all given IDs reference clothing items owned by the user; otherwise throws an error (admin bypasses).
 // ET: Kontrollib, et kõik antud ID-d viitavad kasutajale kuuluvatele rõivaesemetele; muidu viskab vea (admin pääseb mööda).
 // RU: Проверяет, что все переданные ID ссылаются на вещи, принадлежащие пользователю; иначе выбрасывает ошибку (админ — в обход).
 async function assertItemsOwned(itemIds, user) {

@@ -10,6 +10,7 @@ const router = express.Router();
 
 const itemEntryValidation = body('items.*.itemId').isMongoId();
 
+// EN: GET / — returns all outfits of the logged-in user, sorted by last modification date.
 // ET: GET / — tagastab sisselogitud kasutaja kõik komplektid, järjestatuna viimase muutmise järgi.
 // RU: GET / — возвращает все образы текущего пользователя, отсортированные по дате последнего изменения.
 router.get('/', requireAuth, async (req, res, next) => {
@@ -19,6 +20,7 @@ router.get('/', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// EN: POST / — creates a new outfit; checks that all items in the outfit belong to the user.
 // ET: POST / — loob uue komplekti; kontrollib, et kõik komplekti esemed kuuluvad kasutajale.
 // RU: POST / — создаёт новый образ; проверяет, что все вещи образа принадлежат пользователю.
 router.post('/',
@@ -42,6 +44,7 @@ router.post('/',
   }
 );
 
+// EN: PUT /:id — updates an existing outfit (name, items, and their layout) after an ownership check.
 // ET: PUT /:id — uuendab olemasolevat komplekti (nimi, esemed ja nende paigutus) pärast omandiõiguse kontrolli.
 // RU: PUT /:id — обновляет существующий образ (имя, вещи и их расположение) после проверки права владения.
 router.put('/:id',
@@ -67,6 +70,7 @@ router.put('/:id',
   }
 );
 
+// EN: DELETE /:id — deletes an outfit; the clothing items in it remain in the wardrobe.
 // ET: DELETE /:id — kustutab komplekti; selle koosseisus olevad rõivaesemed jäävad garderoobi alles.
 // RU: DELETE /:id — удаляет образ; входящие в него вещи остаются в гардеробе.
 router.delete('/:id',

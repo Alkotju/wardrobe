@@ -17,6 +17,7 @@ const geocodeLimiter = rateLimit({
   message: { error: 'Geocode rate limit exceeded, retry in a moment' },
 });
 
+// EN: GET / — returns a weather forecast of up to 3 days for the coordinates (min/max temp, precipitation, symbol).
 // ET: GET / — tagastab koordinaatide järgi kuni 3 päeva ilmaennustuse (min/max temp, sademed, sümbol).
 // RU: GET / — возвращает по координатам прогноз погоды до 3 дней (мин/макс температура, осадки, символ).
 router.get('/',
@@ -35,6 +36,7 @@ router.get('/',
   }
 );
 
+// EN: GET /hourly — returns an hourly weather forecast (24 h by default) with extended fields.
 // ET: GET /hourly — tagastab tunnipõhise ilmaennustuse (vaikimisi 24 h) laiendatud väljadega.
 // RU: GET /hourly — возвращает почасовой прогноз погоды (по умолчанию 24 ч) с расширенными полями.
 router.get('/hourly',
@@ -55,6 +57,7 @@ router.get('/hourly',
   }
 );
 
+// EN: GET /geocode — looks up coordinates by place name (geocoding), rate-limited to 1 request per second.
 // ET: GET /geocode — otsib kohanime järgi koordinaadid (geokodeerimine), kiiruspiiranguga 1 päring sekundis.
 // RU: GET /geocode — ищет координаты по названию места (геокодирование) с ограничением 1 запрос в секунду.
 router.get('/geocode',

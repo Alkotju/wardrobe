@@ -1,6 +1,7 @@
 const sharp = require('sharp');
 const http = require('http');
 
+// EN: Smoke test — logs in, uploads a blue PNG, and checks that the response contains a color analysis.
 // ET: Suitsutest — logib sisse, laadib üles sinise PNG-i ja kontrollib, et vastus sisaldab värvianalüüsi.
 // RU: Дымовой тест — выполняет вход, загружает синий PNG и проверяет, что ответ содержит анализ цвета.
 (async () => {
@@ -43,6 +44,7 @@ const http = require('http');
   console.log('     analysis field present:', 'analysis' in upload.body);
 })().catch((err) => { console.error('FAIL:', err); process.exit(1); });
 
+// EN: Sends a JSON request to the API and returns a promise with the response status and parsed body.
 // ET: Saadab JSON-päringu API-le ja tagastab lubaduse vastuse staatuse ja parsitud kehaga.
 // RU: Отправляет JSON-запрос к API и возвращает промис со статусом ответа и разобранным телом.
 function jsonReq(method, path, token, payload) {
@@ -70,6 +72,7 @@ function jsonReq(method, path, token, payload) {
   });
 }
 
+// EN: Sends a multipart/form-data request with an image file and returns a promise with the response status and body.
 // ET: Saadab multipart/form-data päringu pildifailiga ja tagastab lubaduse vastuse staatuse ja kehaga.
 // RU: Отправляет запрос multipart/form-data с файлом изображения и возвращает промис со статусом и телом ответа.
 function multipartReq(path, token, fileBuffer) {

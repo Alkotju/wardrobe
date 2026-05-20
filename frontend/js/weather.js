@@ -9,10 +9,12 @@
   let refreshTimer = null;
   let locationPickerOpen = false;
 
+  // EN: Escapes HTML special characters (uses the wardrobe module's esc function if available).
   // ET: Varjestab HTML-i erimärgid (kasutab wardrobe mooduli esc-funktsiooni, kui see on saadaval).
   // RU: Экранирует спецсимволы HTML (использует функцию esc модуля wardrobe, если она доступна).
   function esc(s) { return App.wardrobe ? App.wardrobe.esc(s) : String(s); }
 
+  // EN: Initializes the weather widget — loads the location, shows the weather, and sets a 30-minute refresh timer.
   // ET: Initsialiseerib ilmavidina — laadib asukoha, kuvab ilma ja seab 30-minutilise värskendustaimeri.
   // RU: Инициализирует виджет погоды — загружает локацию, показывает погоду и устанавливает 30-минутный таймер обновления.
   function init() {
@@ -31,6 +33,7 @@
     }, REFRESH_MS);
   }
 
+  // EN: Stops the weather widget refresh timer (called on logout).
   // ET: Peatab ilmavidina värskendustaimeri (kutsutakse väljalogimisel).
   // RU: Останавливает таймер обновления виджета погоды (вызывается при выходе из системы).
   function stop() {
@@ -40,6 +43,7 @@
     }
   }
 
+  // EN: Tries to determine the user's location via browser geolocation; falls back to Tallinn on failure.
   // ET: Üritab tuvastada kasutaja asukoha brauseri geolokatsiooni kaudu; ebaõnnestumisel kasutab Tallinna varuvarianti.
   // RU: Пытается определить местоположение пользователя через геолокацию браузера; при неудаче использует Таллин как запасной вариант.
   function tryGeolocation() {
@@ -58,6 +62,7 @@
     );
   }
 
+  // EN: Sets a new location — saves it to state and localStorage and loads the weather.
   // ET: Määrab uue asukoha — salvestab selle olekusse ja localStorage'i ning laadib ilma.
   // RU: Устанавливает новую локацию — сохраняет её в состояние и localStorage и загружает погоду.
   function useLocation(loc) {
@@ -66,6 +71,7 @@
     fetchAndRender(loc);
   }
 
+  // EN: Reads a previously saved weather location from localStorage; returns null if missing or on error.
   // ET: Loeb localStorage'ist varem salvestatud ilmaasukoha; puudumisel või vea korral tagastab null.
   // RU: Читает ранее сохранённую локацию погоды из localStorage; при отсутствии или ошибке возвращает null.
   function readLocation() {
@@ -74,6 +80,7 @@
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   }
+  // EN: Saves the weather location to localStorage for later use.
   // ET: Salvestab ilmaasukoha localStorage'i edaspidiseks kasutamiseks.
   // RU: Сохраняет локацию погоды в localStorage для последующего использования.
   function writeLocation(loc) {
@@ -81,6 +88,7 @@
     catch {}
   }
 
+  // EN: Requests the weather forecast for the given location from the server and renders the widget; shows an error message on failure.
   // ET: Pärib serverist antud asukoha ilmaennustuse ja joonistab vidina; vea korral kuvab veateate.
   // RU: Запрашивает у сервера прогноз погоды для заданной локации и отрисовывает виджет; при ошибке показывает сообщение об ошибке.
   async function fetchAndRender(loc) {
@@ -94,6 +102,7 @@
     }
   }
 
+  // EN: Runs the given function on both weather widget elements (the sidebar one and the mobile one).
   // ET: Käivitab antud funktsiooni mõlema ilmavidina elemendi peal (külgriba ja mobiili oma).
   // RU: Выполняет заданную функцию для обоих элементов виджета погоды (боковая панель и мобильный).
   function eachWidget(fn) {
@@ -103,11 +112,13 @@
     });
   }
 
+  // EN: Shows a loading state message in the weather widget.
   // ET: Kuvab ilmavidinas laadimisoleku teate.
   // RU: Показывает в виджете погоды сообщение о состоянии загрузки.
   function paintLoading() {
     eachWidget((el) => { el.innerHTML = '<div class="loading">Loading weather…</div>'; });
   }
+  // EN: Shows an error message in the weather widget along with a change-location button.
   // ET: Kuvab ilmavidinas veateate koos asukoha muutmise nupuga.
   // RU: Показывает в виджете погоды сообщение об ошибке вместе с кнопкой смены локации.
   function paintError(msg) {
@@ -120,6 +131,7 @@
     });
     if (window.lucide) lucide.createIcons();
   }
+  // EN: Renders the weather widget — the current weather, up to a 3-day forecast, and the change-location button.
   // ET: Joonistab ilmavidina — praeguse ilma, kuni 3 päeva ennustuse ja asukoha muutmise nupu.
   // RU: Отрисовывает виджет погоды — текущую погоду, прогноз до 3 дней и кнопку смены локации.
   function paint() {
@@ -157,6 +169,7 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  // EN: Builds the HTML of one forecast day (day label, icon, min/max temperature, precipitation).
   // ET: Koostab ühe ennustuspäeva HTML-i (päeva silt, ikoon, min/max temperatuur, sademed).
   // RU: Формирует HTML одного дня прогноза (метка дня, иконка, мин/макс температура, осадки).
   function dayMarkup(d) {
@@ -173,6 +186,7 @@
       + '</div>';
   }
 
+  // EN: Returns the HTML of the icon image for a weather symbol code; a cloud emoji if the code is missing.
   // ET: Tagastab ilmasümboli koodile vastava ikooni-pildi HTML-i; koodi puudumisel pilve-emoji.
   // RU: Возвращает HTML картинки иконки для кода символа погоды; при отсутствии кода — эмодзи облака.
   function iconImg(code, size) {
@@ -182,6 +196,7 @@
       + size + '" height="' + size + '" />';
   }
 
+  // EN: Sets up a fallback for weather icons — if image loading fails, replaces it with a cloud emoji.
   // ET: Seab ilmaikoonidele varuvariandi — kui pildi laadimine ebaõnnestub, asendab selle pilve-emojiga.
   // RU: Настраивает запасной вариант для иконок погоды — если изображение не загрузилось, заменяет его эмодзи облака.
   function wireIconFallbacks(root) {
@@ -195,6 +210,7 @@
     });
   }
 
+  // EN: Formats a temperature into rounded degrees; returns a dash for a missing value.
   // ET: Vormindab temperatuuri ümardatud kraadideks; puuduva väärtuse korral tagastab kriipsu.
   // RU: Форматирует температуру в округлённые градусы; при отсутствии значения возвращает прочерк.
   function formatTemp(t) {
@@ -202,6 +218,7 @@
     return Math.round(t) + '°';
   }
 
+  // EN: Formats a date into a day label — "Today" for today or a short weekday name for the rest.
   // ET: Vormindab kuupäeva päevasildiks — "Today" tänase või lühikese nädalapäeva nime muude kohta.
   // RU: Форматирует дату в метку дня — "Today" для сегодня или короткое название дня недели для остальных.
   function formatDayLabel(yyyy_mm_dd) {
@@ -214,6 +231,7 @@
     return d.toLocaleDateString([], { weekday: 'short' });
   }
 
+  // EN: Binds the "Change location" button that opens/closes the built-in location search field.
   // ET: Seob "Muuda asukohta" nupu, mis avab/sulgeb sisseehitatud asukoha otsinguvälja.
   // RU: Привязывает кнопку «Сменить локацию», открывающую/закрывающую встроенное поле поиска локации.
   function wireChangeLocation(widget) {
@@ -239,6 +257,7 @@
       const find  = wrap.querySelector('button');
       input.focus();
 
+      // EN: Sends a place-name geocoding request and shows the found locations.
       // ET: Saadab kohanime geokodeerimispäringu ja kuvab leitud asukohad.
       // RU: Отправляет запрос геокодирования названия места и показывает найденные локации.
       const submit = async () => {
@@ -259,6 +278,7 @@
     });
   }
 
+  // EN: Renders the geocoding results list, where selecting an entry sets a new location.
   // ET: Joonistab geokodeerimise tulemuste loendi, kus iga kirje valimine määrab uue asukoha.
   // RU: Отрисовывает список результатов геокодирования, где выбор записи устанавливает новую локацию.
   function paintResults(widget, results) {
@@ -287,6 +307,7 @@
     });
   }
 
+  // EN: Binds the mobile-view button that opens/closes the collapsible weather panel.
   // ET: Seob mobiilivaate nupu, mis avab/sulgeb kokkupandava ilmapaneeli.
   // RU: Привязывает кнопку мобильного вида, открывающую/закрывающую сворачиваемую панель погоды.
   function wireMobileToggle() {

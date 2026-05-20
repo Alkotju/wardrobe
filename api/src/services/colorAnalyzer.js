@@ -9,12 +9,13 @@ const PALETTE = [
   { label: 'Зеленый', hex: '#27ae60' },
   { label: 'Желтый',  hex: '#f1c40f' },
   { label: 'Розовый',    hex: '#e89bb8' },
-  { label: 'Коричнывый',    hex: '#8b5a2b' },
+  { label: 'Коричневый',    hex: '#8b5a2b' },
   { label: 'Бежевый',     hex: '#d8c4a8' },
   { label: 'Лиловый',    hex: '#8e44ad' },
   { label: 'Оранжевый',    hex: '#e67e22' },
 ];
 
+// EN: Converts a hexadecimal color (#rrggbb) into an array of RGB components [r, g, b].
 // ET: Teisendab kuueteistkümnendvärvi (#rrggbb) RGB-komponentide massiiviks [r, g, b].
 // RU: Преобразует шестнадцатеричный цвет (#rrggbb) в массив RGB-компонентов [r, g, b].
 function hexToRgb(hex) {
@@ -26,6 +27,7 @@ function hexToRgb(hex) {
   ];
 }
 
+// EN: Converts RGB components into a hexadecimal color string (#rrggbb), clamping values to the range 0–255.
 // ET: Teisendab RGB-komponendid kuueteistkümnendvärvi stringiks (#rrggbb), kärpides väärtused vahemikku 0–255.
 // RU: Преобразует RGB-компоненты в шестнадцатеричную строку цвета (#rrggbb), ограничивая значения диапазоном 0–255.
 function rgbToHex(r, g, b) {
@@ -34,6 +36,7 @@ function rgbToHex(r, g, b) {
     .join('');
 }
 
+// EN: Converts an RGB color into the CIE LAB space, where distance better matches human color perception.
 // ET: Teisendab RGB-värvi CIE LAB-ruumi, kus kaugus vastab paremini inimese värvitajule.
 // RU: Преобразует цвет RGB в пространство CIE LAB, где расстояние лучше соответствует восприятию цвета человеком.
 function rgbToLab(r, g, b) {
@@ -51,6 +54,7 @@ function rgbToLab(r, g, b) {
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 }
 
+// EN: Computes the Euclidean distance between two LAB colors — the smaller it is, the more similar the colors.
 // ET: Arvutab eukleidilise kauguse kahe LAB-värvi vahel — mida väiksem, seda sarnasemad värvid.
 // RU: Вычисляет евклидово расстояние между двумя цветами LAB — чем меньше, тем более схожи цвета.
 function labDistance(a, b) {
@@ -63,6 +67,7 @@ const PALETTE_LAB = PALETTE.map((p) => {
   return Object.assign({}, p, { lab: rgbToLab(r, g, b) });
 });
 
+// EN: Finds, for the given RGB color, the nearest palette color name by LAB distance.
 // ET: Leiab antud RGB-värvile lähima eestikeelse paletivärvi nime LAB-kauguse järgi.
 // RU: Находит для заданного цвета RGB ближайшее название цвета из эстонской палитры по расстоянию LAB.
 function nearestPaletteLabel(r, g, b) {
@@ -76,6 +81,7 @@ function nearestPaletteLabel(r, g, b) {
   return best.label;
 }
 
+// EN: Pure-JS core: analyzes a pixel array, votes each pixel for a palette color, and returns the winning color { hex, label, confidence }.
 // ET: Puhas-JS tuum: analüüsib pikslimassiivi, hääletab iga piksli paletivärvi poolt ja tagastab võitnud värvi { hex, label, confidence }.
 // RU: Чистое JS-ядро: анализирует массив пикселей, голосует за цвет палитры для каждого пикселя и возвращает победивший цвет { hex, label, confidence }.
 function analyzePixels(data, info, step) {
@@ -139,6 +145,7 @@ function analyzePixels(data, info, step) {
   };
 }
 
+// EN: Production entry point: decodes a background-removed PNG buffer into raw pixels and runs the full color analysis.
 // ET: Tootmise sisendpunkt: dekodeerib taustata PNG-puhvri toorpiksliteks ja käivitab täisvärvianalüüsi.
 // RU: Производственная точка входа: декодирует PNG-буфер без фона в сырые пиксели и запускает полный анализ цвета.
 async function detectColor(processedBuffer) {

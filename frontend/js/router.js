@@ -29,12 +29,14 @@
     },
   ];
 
+  // EN: Route guard — admits the route only for a logged-in user, otherwise redirects to login.
   // ET: Marsruudivalvur — lubab marsruudi ainult sisseloginud kasutajale, muidu suunab sisselogimisse.
   // RU: Страж маршрута — допускает маршрут только для вошедшего пользователя, иначе перенаправляет на вход.
   function requireAuth() {
     if (!App.auth.isAuthenticated()) return '/login';
     return true;
   }
+  // EN: Route guard — admits the route only for an admin; others are redirected to the wardrobe or login.
   // ET: Marsruudivalvur — lubab marsruudi ainult adminile; teised suunatakse garderoobi või sisselogimisse.
   // RU: Страж маршрута — допускает маршрут только для админа; остальных перенаправляет в гардероб или на вход.
   function requireAdmin() {
@@ -45,6 +47,7 @@
 
   let cleanupPrev = null;
 
+  // EN: Switches the visible app "shell" — either the auth view or the main app view.
   // ET: Lülitab nähtavale õige rakenduse "kesta" — kas autentimisvaate või põhirakenduse vaate.
   // RU: Переключает видимую «оболочку» приложения — либо вид аутентификации, либо основной вид приложения.
   function showShell(which) {
@@ -53,6 +56,7 @@
     document.getElementById('app-shell').hidden  = which !== 'app';
   }
 
+  // EN: Marks the navigation link of the active route based on the current path.
   // ET: Märgib navigatsioonis aktiivse marsruudi lingi praeguse tee põhjal.
   // RU: Отмечает в навигации ссылку активного маршрута на основе текущего пути.
   function highlightActiveNav(path) {
@@ -63,6 +67,7 @@
     });
   }
 
+  // EN: Returns the current route path from the URL hash, stripping "#" and any query string.
   // ET: Tagastab praeguse marsruuditee URL-i räsiosast, eemaldades "#" ja võimaliku päringustringi.
   // RU: Возвращает текущий путь маршрута из hash-части URL, убирая "#" и возможную строку запроса.
   function currentPath() {
@@ -70,6 +75,7 @@
     return raw.split('?')[0] || '/';
   }
 
+  // EN: The router core — finds the route matching the current path, checks the guards, and renders the view.
   // ET: Marsruuteri süda — leiab praegusele teele vastava marsruudi, kontrollib valvurid ja renderdab vaate.
   // RU: Ядро маршрутизатора — находит маршрут для текущего пути, проверяет стражей и отрисовывает вид.
   async function dispatch() {
@@ -113,6 +119,7 @@
     }
   }
 
+  // EN: Starts the app — picks the initial shell, initializes authentication, and binds route-change events.
   // ET: Käivitab rakenduse — valib algkesta, initsialiseerib autentimise ja seob marsruudivahetuse sündmused.
   // RU: Запускает приложение — выбирает начальную оболочку, инициализирует аутентификацию и привязывает события смены маршрута.
   function boot() {

@@ -12,6 +12,7 @@ const { removeBackground, deleteFileSafe, analyzeImage, commitStagedImage } = re
 
 const router = express.Router();
 
+// EN: Converts a multipart-form boolean string ("true"/"false"/"on") into a real JS boolean value.
 // ET: Teisendab multipart-vormi tõeväärtuse stringi ("true"/"false"/"on") päris JS-i boolean-väärtuseks.
 // RU: Преобразует строковое булево значение из multipart-формы ("true"/"false"/"on") в настоящий boolean JS.
 function coerceBool(v) {
@@ -24,12 +25,14 @@ function coerceBool(v) {
   return undefined;
 }
 
+// EN: Escapes regular-expression special characters so user input can be safely used in a RegExp search.
 // ET: Varjestab regulaaravaldise erimärgid, et kasutaja sisendit saaks ohutult RegExp-otsingus kasutada.
 // RU: Экранирует спецсимволы регулярного выражения, чтобы ввод пользователя можно было безопасно использовать в RegExp-поиске.
 function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// EN: Parses a form field that may be a JSON string or already an object; returns the fallback value on error.
 // ET: Parsib vormivälja, mis võib olla JSON-string või juba objekt; vea korral tagastab varuväärtuse.
 // RU: Разбирает поле формы, которое может быть JSON-строкой или уже объектом; при ошибке возвращает запасное значение.
 function parseJsonField(value, fallback) {
@@ -38,6 +41,7 @@ function parseJsonField(value, fallback) {
   try { return JSON.parse(value); } catch { return fallback; }
 }
 
+// EN: Builds a MongoDB filter from the query parameters (color, category, material, search) to find clothing items.
 // ET: Koostab päringuparameetritest (värv, kategooria, materjal, otsing) MongoDB filtri rõivaesemete leidmiseks.
 // RU: Строит из параметров запроса (цвет, категория, материал, поиск) фильтр MongoDB для выборки вещей.
 function buildFilter(req) {
@@ -73,6 +77,7 @@ function buildFilter(req) {
   return filter;
 }
 
+// EN: GET / — returns the user's clothing items, applying optional filters (color, category, material, search).
 // ET: GET / — tagastab kasutaja rõivaesemed, rakendades valikulisi filtreid (värv, kategooria, materjal, otsing).
 // RU: GET / — возвращает вещи пользователя с применением необязательных фильтров (цвет, категория, материал, поиск).
 router.get('/',
@@ -92,6 +97,7 @@ router.get('/',
   }
 );
 
+// EN: POST / — creates a new clothing item; removes the image background if needed or uses a previously prepared image.
 // ET: POST / — loob uue rõivaeseme; vajadusel eemaldab pildilt tausta või kasutab varem ettevalmistatud pilti.
 // RU: POST / — создаёт новую вещь; при необходимости удаляет фон с фото или использует ранее подготовленное изображение.
 router.post('/',
@@ -149,6 +155,7 @@ router.post('/',
   }
 );
 
+// EN: PUT /:id — updates an existing clothing item; with a new image, deletes the old one and processes the new one.
 // ET: PUT /:id — uuendab olemasolevat rõivaeset; uue pildi korral kustutab vana ja töötleb uue.
 // RU: PUT /:id — обновляет существующую вещь; при новом фото удаляет старое и обрабатывает новое.
 router.put('/:id',
@@ -205,6 +212,7 @@ router.put('/:id',
   }
 );
 
+// EN: DELETE /:id — deletes a clothing item, its image files, and references to it from outfits and collections.
 // ET: DELETE /:id — kustutab rõivaeseme, selle pildifailid ja eemaldab viited komplektidest ja kollektsioonidest.
 // RU: DELETE /:id — удаляет вещь, её файлы изображений и ссылки на неё из образов и коллекций.
 router.delete('/:id',
@@ -230,6 +238,7 @@ router.delete('/:id',
   }
 );
 
+// EN: POST /upload — removes the image background for a preview and analyzes the color, without saving a clothing item.
 // ET: POST /upload — eemaldab pildilt tausta eelvaateks ja analüüsib värvi, ilma rõivaeset salvestamata.
 // RU: POST /upload — удаляет фон с изображения для предпросмотра и анализирует цвет, не сохраняя вещь.
 router.post('/upload',
@@ -257,6 +266,7 @@ router.post('/upload',
   }
 );
 
+// EN: POST /analyze — analyzes the color of an uploaded image without removing the background or saving anything.
 // ET: POST /analyze — analüüsib üleslaaditud pildi värvi ilma tausta eemaldamata või midagi salvestamata.
 // RU: POST /analyze — анализирует цвет загруженного изображения без удаления фона и без сохранения.
 router.post('/analyze',

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+// EN: Checks the Bearer-JWT header, validates the token and attaches req.user data; returns 401 for an invalid token.
 // ET: Kontrollib Bearer-JWT päist, valideerib märgi ja lisab req.user andmed; vigase märgi korral tagastab 401.
 // RU: Проверяет заголовок Bearer-JWT, валидирует токен и добавляет данные req.user; при неверном токене возвращает 401.
 function requireAuth(req, res, next) {
@@ -21,6 +22,7 @@ function requireAuth(req, res, next) {
   }
 }
 
+// EN: Allows through only users with the admin role; otherwise returns 403.
 // ET: Lubab edasi ainult admin-rolliga kasutajaid; muidu tagastab 403.
 // RU: Пропускает дальше только пользователей с ролью admin; иначе возвращает 403.
 function requireAdmin(req, res, next) {
@@ -30,9 +32,11 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// EN: Factory function that creates middleware for loading a document and checking ownership against the chosen model.
 // ET: Tehasefunktsioon, mis loob vahevara dokumendi laadimiseks ja omandiõiguse kontrolliks valitud mudeli põhjal.
 // RU: Фабричная функция, создающая middleware для загрузки документа и проверки права владения по выбранной модели.
 function requireOwnership(Model, idParam = 'id') {
+  // EN: Middleware that loads the document by ID and allows through only the owner or an admin.
   // ET: Vahevara, mis laadib dokumendi ID järgi ja lubab edasi vaid omaniku või admini.
   // RU: Middleware, который загружает документ по ID и пропускает только владельца или администратора.
   return async function ownershipCheck(req, res, next) {

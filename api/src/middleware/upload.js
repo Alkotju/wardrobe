@@ -6,6 +6,7 @@ const MAX_BYTES = parseInt(process.env.MAX_UPLOAD_BYTES, 10) || 25 * 1024 * 1024
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_BYTES, files: 1 },
+  // EN: Filter function that allows uploading only JPEG/PNG/WebP images; returns error 415 for any other type.
   // ET: Filterfunktsioon, mis lubab üles laadida vaid JPEG/PNG/WebP pilte; muu tüübi korral tagastab vea 415.
   // RU: Функция-фильтр, разрешающая загрузку только изображений JPEG/PNG/WebP; при ином типе возвращает ошибку 415.
   fileFilter: (_req, file, cb) => {
