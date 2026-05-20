@@ -1,0 +1,155 @@
+<!doctype html>
+<!--
+  index.html — single-page app shell.
+
+  Design notes:
+  - Hash routing (#/wardrobe, #/outfits, ...) so the file can be served as a
+    pure static asset without server-side rewrites. The nginx container in
+    front of the API only proxies /api/* and /uploads/*; everything else (this
+    file + js/css) is meant to be served from disk.
+  - Scripts are loaded as classic <script> (not modules) and rely on a global
+    `App` namespace populated by each file. This sidesteps CORS quirks with
+    file:// for local debugging and keeps the no-build-tools constraint clean.
+  - Order matters: api.js → store.js → auth.js → router.js → feature modules.
+    router.js is the entry point — it boots everything once DOMContentLoaded.
+-->
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Wardrobe</title>
+
+  <!-- Inter (Google Fonts) — preconnect first for faster TLS handshake. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+</head>
+<body>
+  <!--
+    Two top-level shells. We toggle [data-shell] on <body> to swap them:
+      data-shell="auth"  → only #auth-shell visible (login screen)
+      data-shell="app"   → only #app-shell visible (everything else)
+    This keeps the auth view free of the sidebar/weather chrome.
+  -->
+
+  <div id="auth-shell" class="auth-shell" hidden>
+    <main class="auth-card" role="main">
+      <h1 class="auth-title">Wardrobe</h1>
+      <p class="auth-sub">Sign in to your closet</p>
+
+      <form id="login-form" class="auth-form" novalidate>
+        <label class="field">
+          <span class="field-label">Username</span>
+          <input type="text" name="username" autocomplete="username" required />
+        </label>
+        <label class="field">
+          <span class="field-label">Password</span>
+          <input type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        <p id="login-error" class="form-error" role="alert" aria-live="polite" hidden></p>
+      </form>
+    </main>
+  </div>
+
+  <div id="app-shell" class="app-shell" hidden>
+    <!-- Desktop sidebar. Hidden on mobile via CSS. -->
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar-brand">
+        <i data-lucide="shirt" class="brand-icon" aria-hidden="true"></i>
+        <span class="brand-text">Wardrobe</span>
+      </div>
+
+      <div id="weather-widget" class="weather-widget" aria-live="polite">
+        <!-- weather.js renders here -->
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Sections">
+        <a href="#/wardrobe"    class="nav-link" data-route="/wardrobe">
+          <i data-lucide="layout-grid" aria-hidden="true"></i>
+          <span>Wardrobe</span>
+        </a>
+        <a href="#/outfits"     class="nav-link" data-route="/outfits">
+          <i data-lucide="palette" aria-hidden="true"></i>
+          <span>Outfits</span>
+        </a>
+        <a href="#/collections" class="nav-link" data-route="/collections">
+          <i data-lucide="luggage" aria-hidden="true"></i>
+          <span>Collections</span>
+        </a>
+        <a href="#/admin" class="nav-link" data-route="/admin" data-admin-only hidden>
+          <i data-lucide="users" aria-hidden="true"></i>
+          <span>Admin</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-chip" id="user-chip" aria-live="polite"></div>
+        <button id="logout-btn" type="button" class="btn btn-ghost btn-sm">
+          <i data-lucide="log-out" aria-hidden="true"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile top bar — only the weather collapsible lives here. -->
+    <header class="mobile-topbar" aria-label="Top bar">
+      <button id="mobile-weather-toggle" type="button" class="topbar-weather"
+              aria-expanded="false" aria-controls="weather-widget-mobile">
+        <i data-lucide="cloud-sun" aria-hidden="true"></i>
+        <span class="topbar-weather-summary">Weather</span>
+        <i data-lucide="chevron-down" aria-hidden="true" class="chev"></i>
+      </button>
+      <div id="weather-widget-mobile" class="weather-widget weather-widget--mobile" hidden></div>
+    </header>
+
+    <main id="view" class="view" role="main" aria-live="polite">
+      <!-- Each feature module renders its page into here. -->
+    </main>
+
+    <!-- Mobile bottom tab bar. Hidden on desktop via CSS. -->
+    <nav class="bottom-tabs" aria-label="Primary navigation (mobile)">
+      <a href="#/wardrobe"    class="tab" data-route="/wardrobe">
+        <i data-lucide="layout-grid" aria-hidden="true"></i><span>Wardrobe</span>
+      </a>
+      <a href="#/outfits"     class="tab" data-route="/outfits">
+        <i data-lucide="palette" aria-hidden="true"></i><span>Outfits</span>
+      </a>
+      <a href="#/collections" class="tab" data-route="/collections">
+        <i data-lucide="luggage" aria-hidden="true"></i><span>Collections</span>
+      </a>
+      <a href="#/admin" class="tab" data-route="/admin" data-admin-only hidden>
+        <i data-lucide="users" aria-hidden="true"></i><span>Admin</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Modal mount — every modal in the app reuses this container. -->
+  <div id="modal-root" class="modal-root" hidden aria-modal="true" role="dialog"></div>
+
+  <!-- Toast mount — small ephemeral notifications (errors, save confirmations). -->
+  <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Third-party CDNs. Versions MUST be pinned — `@latest` would silently
+       break the UI on any upstream release. README claims "fully self-hosted";
+       the long-term plan is to vendor these into /vendor/. For now: pinned. -->
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js" defer></script>
+
+  <!-- App scripts. Order is important — see header comment. `defer` preserves
+       declaration order and runs after parsing, so we can rely on the DOM. -->
+  <script src="js/api.js"         defer></script>
+  <script src="js/store.js"       defer></script>
+  <script src="js/auth.js"        defer></script>
+  <script src="js/weather.js"     defer></script>
+  <script src="js/wardrobe.js"    defer></script>
+  <script src="js/outfits.js"     defer></script>
+  <script src="js/collections.js" defer></script>
+  <script src="js/admin.js"       defer></script>
+  <script src="js/router.js"      defer></script>
+</body>
+</html>

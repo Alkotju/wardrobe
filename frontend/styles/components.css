@@ -1,0 +1,863 @@
+/* components.css — card, modal, FAB, weather, moodboard, filters, toast.
+ *
+ * Conventions:
+ *  - Component classes are flat (no BEM nesting longer than 2 levels). The
+ *    project is small enough that strict BEM adds noise without payoff.
+ *  - Anything position:absolute/fixed lives here, not in main.css, so that
+ *    overlay z-stacking is reviewable in one file.
+ */
+
+/* ─── search & filter bar ────────────────────────────────────────────────── */
+.filter-bar {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  margin-bottom: var(--sp-3);
+}
+.search-input {
+  position: relative;
+}
+.search-input svg {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--c-text-faint);
+  pointer-events: none;
+}
+.search-input input {
+  width: 100%;
+  padding: 10px 12px 10px 34px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+}
+.search-input input:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+.filter-chips {
+  display: flex;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-0);
+  padding: 6px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-surface);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.chip:hover { background: var(--c-surface-alt); }
+.chip svg { width: 14px; height: 14px; }
+.chip-active {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-0);
+  padding: 6px 10px 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+.chip-active button {
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  color: inherit;
+}
+.chip-active button:hover { background: rgba(0,0,0,.06); }
+
+/* ─── wardrobe card grid ─────────────────────────────────────────────────── */
+.card-grid {
+  display: grid;
+  /* On desktop the spec wants 3-4 cols; auto-fill keeps cards a sensible size
+   * even on the 2388px iPad without us hardcoding 4 cols and getting tiny
+   * cards on smaller windows. */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-2);
+}
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.card:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+.card-image {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--c-surface-alt);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.card-id-chip {
+  position: absolute;
+  top: var(--sp-1);
+  left: var(--sp-1);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: var(--fs-xs);
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+  letter-spacing: .02em;
+}
+/* Waterproof / windproof badges overlaid on the photo. Subtle so the photo
+   still leads, but visible at a glance for matching against the forecast. */
+.card-flag-pips {
+  position: absolute;
+  right: var(--sp-1);
+  bottom: var(--sp-1);
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+.flag-pip {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.flag-pip svg { width: 12px; height: 12px; }
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-image .placeholder {
+  width: 50%;
+  height: 50%;
+  opacity: .25;        /* semi-transparent per spec */
+  color: var(--c-text-faint);
+}
+.card-image .placeholder svg { width: 100%; height: 100%; }
+
+.card-body {
+  display: grid;
+  gap: 6px;
+  padding: var(--sp-2);
+  min-width: 0;
+}
+.card-name {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: 1.25;
+  /* Clamp to one line — overflow can be ellipsised. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+/* Wardrobe card info block — one row per attribute (color / category / material)
+   instead of the original horizontal chips, so longer values stay legible and
+   we no longer expose the hex code as a visible label. */
+.card-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.card-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: 1.3;
+}
+.card-info-row .info-text {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.card-info-row > i,
+.card-info-row > svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--c-text-faint);
+}
+.color-swatch {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.12);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
+  flex-shrink: 0;
+}
+.badge {
+  font-size: var(--fs-xs);
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+}
+.badge-id {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  border-color: transparent;
+}
+
+.card-actions {
+  display: flex;
+  gap: var(--sp-0);
+  padding: 0 var(--sp-1) var(--sp-1);
+}
+.card-actions .btn { flex: 1; }
+
+/* Multi-select state (used by collection-item picker). */
+.card.selectable { position: relative; }
+.card.selectable .select-tick {
+  position: absolute;
+  top: var(--sp-1); right: var(--sp-1);
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--c-surface);
+  border: 2px solid var(--c-border-strong);
+  display: grid; place-items: center;
+  color: transparent;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+.card.selectable .select-tick svg { width: 14px; height: 14px; }
+.card.selectable.selected .select-tick {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: #fff;
+}
+.card.selectable.selected {
+  outline: 2px solid var(--c-accent);
+  outline-offset: -2px;
+}
+
+/* Compact card grid used by the collection item picker: about half the card
+   width of the wardrobe grid, with a tighter body so more items fit on
+   screen without horizontal scrolling. */
+.card-grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--sp-1);
+}
+.card-grid--compact .card-body {
+  padding: 6px 8px;
+  gap: 2px;
+}
+.card-grid--compact .card-name {
+  font-size: var(--fs-sm);
+}
+.card-grid--compact .select-tick {
+  width: 18px; height: 18px;
+}
+.card-grid--compact .select-tick svg { width: 11px; height: 11px; }
+
+/* ─── floating action button ─────────────────────────────────────────────── */
+.fab {
+  position: fixed;
+  right: var(--sp-3);
+  bottom: var(--sp-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 14px 20px;
+  background: var(--c-accent);
+  color: var(--c-accent-text);
+  border: none;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-lg);
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 40;
+  transition: transform var(--t-fast), filter var(--t-fast);
+}
+.fab:hover { transform: translateY(-1px); filter: brightness(0.95); }
+.fab svg { width: 18px; height: 18px; }
+
+/* Mobile-only FAB variant. Used by outfits / collections / admin pages where
+   the desktop carries the add button in .page-header — that header is hidden
+   on mobile, so we surface the same action as a bottom FAB instead. */
+.fab--mobile { display: none; }
+
+@media (max-width: 1100px) {
+  /* Lift the FAB above the bottom tab bar. */
+  .fab { bottom: calc(var(--bottom-tabs-h) + env(safe-area-inset-bottom) + var(--sp-2)); }
+  .fab--mobile { display: inline-flex; }
+}
+
+/* ─── modal ──────────────────────────────────────────────────────────────── */
+.modal-root {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,15,15,.45);
+  display: grid;
+  place-items: center;
+  padding: var(--sp-2);
+  z-index: 100;
+  animation: fadeIn var(--t-med);
+}
+.modal {
+  background: var(--c-surface);
+  border-radius: var(--r-lg);
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100vh - var(--sp-4));
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp var(--t-med);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+}
+.modal-title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+.modal-close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  color: var(--c-text-muted);
+}
+.modal-close:hover { background: var(--c-surface-alt); color: var(--c-text); }
+.modal-body {
+  padding: var(--sp-3);
+  overflow-y: auto;
+  display: grid;
+  gap: var(--sp-2);
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  border-top: 1px solid var(--c-border);
+}
+
+/* Lightbox variant — wider canvas for the photo view. The modal-body still
+   handles scroll when the meta block + image overflow tall viewports. */
+.modal.modal--lightbox {
+  max-width: min(900px, 96vw);
+}
+.modal--lightbox .modal-body {
+  padding: var(--sp-2);
+}
+.lightbox {
+  display: grid;
+  gap: var(--sp-2);
+}
+.lightbox-photo {
+  background: var(--c-surface-alt);
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* Cap the photo so the meta block stays in view on short screens. */
+  max-height: 70vh;
+}
+.lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.lightbox-placeholder {
+  width: 30%;
+  aspect-ratio: 1 / 1;
+  opacity: .25;
+  color: var(--c-text-faint);
+  display: grid;
+  place-items: center;
+  padding: var(--sp-4);
+}
+.lightbox-placeholder svg { width: 100%; height: 100%; }
+.lightbox-meta {
+  display: grid;
+  gap: 6px;
+  padding: var(--sp-1) var(--sp-1) 0;
+}
+.lightbox-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  min-width: 0;
+}
+.lightbox-meta-row > i,
+.lightbox-meta-row > svg {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  color: var(--c-text-faint);
+}
+.lightbox-meta-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── upload zone ────────────────────────────────────────────────────────── */
+.upload-zone {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  border: 2px dashed var(--c-border-strong);
+  border-radius: var(--r-lg);
+  background: var(--c-surface-alt);
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+  overflow: hidden;
+}
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--c-accent);
+  background: var(--c-accent-soft);
+}
+.upload-zone .upload-hint {
+  display: grid; place-items: center; gap: var(--sp-0);
+  color: var(--c-text-muted);
+  text-align: center;
+  padding: var(--sp-2);
+}
+.upload-zone .upload-hint svg { width: 32px; height: 32px; color: var(--c-text-faint); }
+.upload-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.upload-preview {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  background: var(--c-surface);
+}
+.upload-preview-placeholder {
+  width: 50%;
+  height: 50%;
+  opacity: .25;
+  color: var(--c-text-faint);
+}
+.upload-busy {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.7);
+  display: grid; place-items: center;
+  color: var(--c-text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* ─── hierarchical category select ───────────────────────────────────────── */
+.cat-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-1);
+}
+.cat-select select {
+  padding: 10px 12px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+}
+.cat-select select:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+
+/* ─── color picker row ───────────────────────────────────────────────────── */
+.color-row {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: var(--sp-1);
+  align-items: stretch;
+}
+.color-row input[type="color"] {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  padding: 2px;
+  cursor: pointer;
+}
+
+/* ─── weather widget ─────────────────────────────────────────────────────── */
+.weather-widget {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-2);
+  border-radius: var(--r-lg);
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  min-width: 0;
+}
+.weather-current {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+.weather-current img { width: 36px; height: 36px; flex-shrink: 0; }
+.weather-temp {
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+/* min-width:0 overrides the flex default of min-width:auto so the ellipsis
+   actually fires on long display names like "Jõhvi linn, Jõhvi vald, Ida-Viru m". */
+.weather-loc {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  text-align: right;
+  min-width: 0;
+  flex: 1 1 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.weather-forecast {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-0);
+  padding-top: var(--sp-1);
+  border-top: 1px solid var(--c-border);
+}
+.weather-day {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: var(--sp-0);
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+}
+.weather-day img { width: 24px; height: 24px; }
+.weather-day .tmax { color: var(--c-text); font-weight: 600; }
+.weather-day .precip { color: var(--c-accent); font-size: 11px; }
+
+.weather-actions {
+  display: flex; justify-content: space-between; gap: var(--sp-0);
+}
+.weather-actions .btn { font-size: var(--fs-xs); padding: 4px 8px; }
+
+.weather-loc-input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--sp-0);
+  padding-top: var(--sp-1);
+  border-top: 1px solid var(--c-border);
+}
+.weather-loc-input input {
+  padding: 6px 8px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+}
+.weather-loc-results {
+  list-style: none;
+  margin: var(--sp-0) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.weather-loc-results li button {
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  cursor: pointer;
+  font-size: var(--fs-xs);
+}
+.weather-loc-results li button:hover { background: var(--c-accent-soft); }
+
+.weather-widget--mobile {
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid var(--c-border);
+  background: var(--c-surface);
+}
+
+/* ─── moodboard canvas (outfits) ─────────────────────────────────────────── */
+/* Wrapper around the toolbar + canvas. Hidden by default on every viewport —
+   it only appears when "New outfit" (desktop) or the "Add outfit" FAB
+   (mobile) toggles .is-open. The small editor-mhead with a × lets the user
+   dismiss the canvas from either layout. */
+.outfit-editor { display: none; }
+.outfit-editor.is-open { display: block; }
+.outfit-editor-mhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-1);
+  margin-bottom: var(--sp-1);
+  font-weight: 600;
+}
+.outfit-editor-close {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  cursor: pointer;
+  color: var(--c-text-muted);
+}
+.outfit-editor-close:hover { background: var(--c-surface-alt); color: var(--c-text); }
+.outfit-editor-close svg { width: 16px; height: 16px; }
+
+.moodboard-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  margin-bottom: var(--sp-2);
+  flex-wrap: wrap;
+}
+.moodboard-toolbar input[type="text"] {
+  flex: 1 1 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+}
+.moodboard-toolbar input[type="text"]:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+.moodboard {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  background:
+    radial-gradient(circle, var(--c-border) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: var(--sp-3);
+  touch-action: none;
+}
+.moodboard-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--c-text-faint);
+  text-align: center;
+  padding: var(--sp-3);
+  pointer-events: none;
+}
+.mb-item {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  /* Disable native gestures so interact.js owns the input. */
+  touch-action: none;
+}
+.mb-item:active { cursor: grabbing; }
+.mb-item img {
+  width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+}
+.mb-item .mb-placeholder {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  color: var(--c-text-faint);
+  opacity: .35;
+}
+.mb-item .mb-placeholder svg { width: 50%; height: 50%; }
+.mb-remove {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  display: grid; place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+.mb-item:hover .mb-remove { opacity: 1; }
+.mb-remove svg { width: 14px; height: 14px; }
+
+.outfit-card-thumb {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--c-surface-alt);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  overflow: hidden;
+}
+.outfit-card-thumb img {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── collections list ───────────────────────────────────────────────────── */
+.collection-list {
+  display: grid;
+  gap: var(--sp-2);
+}
+.collection-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--sp-2);
+  align-items: center;
+  padding: var(--sp-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+}
+.collection-row h3 {
+  margin: 0 0 var(--sp-0);
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+.collection-thumbs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: var(--sp-1);
+}
+.collection-thumb {
+  width: 40px; height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--c-surface-alt);
+  overflow: hidden;
+  display: grid; place-items: center;
+  border: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+.collection-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.collection-thumb .placeholder { width: 60%; height: 60%; opacity: .3; color: var(--c-text-faint); }
+.collection-actions { display: flex; gap: var(--sp-0); }
+
+/* ─── toast ─────────────────────────────────────────────────────────────── */
+.toast-root {
+  position: fixed;
+  right: var(--sp-3);
+  bottom: var(--sp-3);
+  display: grid;
+  gap: var(--sp-1);
+  z-index: 200;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  background: var(--c-text);
+  color: var(--c-surface);
+  padding: 10px var(--sp-2);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-lg);
+  animation: slideUp var(--t-med);
+  max-width: 320px;
+}
+.toast.error   { background: var(--c-danger); }
+.toast.success { background: var(--c-success); }
+
+@media (max-width: 1100px) {
+  .toast-root {
+    right: var(--sp-2);
+    bottom: calc(var(--bottom-tabs-h) + env(safe-area-inset-bottom) + var(--sp-2));
+  }
+  /* On mobile the canvas is much narrower than the desktop coord space items
+     were placed in, so items at e.g. x=305 spill past the right/bottom edge.
+     Swap the desktop's clipping overflow for scroll, and hand pan gestures
+     back to the browser — interact.js still owns drag on .mb-item because
+     those keep touch-action: none. */
+  .moodboard {
+    height: 460px;
+    overflow: auto;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}

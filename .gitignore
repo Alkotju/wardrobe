@@ -1,0 +1,16 @@
+node_modules/
+.env
+*.log
+uploads/
+api/uploads/
+
+# Local TLS material — never commit
+nginx/certs/*
+!nginx/certs/.gitkeep
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+/debug_color.js

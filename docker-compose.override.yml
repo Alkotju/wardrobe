@@ -1,0 +1,14 @@
+# Local dev overrides. Compose auto-merges this on top of docker-compose.yml
+# when you run `docker compose up` from this directory. To run a clean
+# production-style build (without these bind mounts), use:
+#   docker compose -f docker-compose.yml up -d
+#
+# Bind-mounts the SPA assets straight from the working tree into the nginx
+# container, so edits to frontend/ show up on a browser refresh — no image
+# rebuild needed. The image still has its own copy as a fallback for prod.
+services:
+  nginx:
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html:ro
+      - ./frontend/js:/usr/share/nginx/html/js:ro
+      - ./frontend/styles:/usr/share/nginx/html/styles:ro

@@ -1,0 +1,535 @@
+/* main.css — design tokens, layout, breakpoints.
+ *
+ * Design notes:
+ *  - The two target devices have very different aspect ratios but high pixel
+ *    counts. We anchor on a `--shell-max` of 2400px and let the grid breathe
+ *    on the iPad; the phone collapses to a single column with a bottom tab bar.
+ *  - The desktop ↔ mobile switch is gated on viewport WIDTH at 1100px, not on
+ *    a UA sniff. The iPad in portrait still gets the sidebar at 1668px wide.
+ *  - Color is a neutral base + a single accent variable that an "appearance"
+ *    settings page can later overwrite at runtime (CSS custom properties).
+ *  - 8px base grid is encoded as --sp-1=8, --sp-2=16, etc. Stick to these.
+ */
+
+/* ─── design tokens ──────────────────────────────────────────────────────── */
+:root {
+  /* Spacing — multiples of 8px. */
+  --sp-0:  4px;
+  --sp-1:  8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-5: 48px;
+  --sp-6: 64px;
+
+  /* Neutral palette. */
+  --c-bg:           #fafaf9;   /* off-white page background */
+  --c-surface:      #ffffff;   /* cards, modals */
+  --c-surface-alt:  #f4f4f3;   /* hover, secondary surfaces */
+  --c-border:       #e7e7e4;
+  --c-border-strong:#cfcfca;
+  --c-text:         #1c1c1a;
+  --c-text-muted:   #6b6b66;
+  --c-text-faint:   #9a9a93;
+
+  /* Accent — user-configurable later via JS. */
+  --c-accent:       #4f46e5;   /* indigo-600 */
+  --c-accent-soft:  #eef2ff;
+  --c-accent-text:  #ffffff;
+
+  /* Semantic. */
+  --c-danger:       #dc2626;
+  --c-danger-soft:  #fef2f2;
+  --c-success:      #16a34a;
+  --c-warning:      #d97706;
+
+  /* Radii. */
+  --r-sm:  6px;
+  --r-md: 10px;
+  --r-lg: 12px;        /* primary card radius per spec */
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* Shadows — soft, layered. */
+  --shadow-sm: 0 1px 2px rgba(15,15,15,.04), 0 1px 1px rgba(15,15,15,.03);
+  --shadow-md: 0 4px 12px rgba(15,15,15,.06), 0 2px 4px rgba(15,15,15,.04);
+  --shadow-lg: 0 18px 40px rgba(15,15,15,.12), 0 6px 12px rgba(15,15,15,.06);
+
+  /* Layout. */
+  --sidebar-w: 240px;
+  --topbar-h:  56px;
+  --bottom-tabs-h: 64px;
+
+  /* Type. */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 28px;
+
+  /* Motion — subtle per spec. */
+  --t-fast: 120ms ease;
+  --t-med:  200ms ease;
+}
+
+/* ─── reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  color: var(--c-text);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+input, select, textarea, button {
+  font-family: inherit;
+}
+[hidden] { display: none !important; }
+
+/* Screen-reader-only utility. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ─── shell layouts ──────────────────────────────────────────────────────── */
+
+/* Auth shell — full-viewport centered card. */
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-3);
+  background:
+    radial-gradient(ellipse at top, var(--c-accent-soft), transparent 60%),
+    var(--c-bg);
+}
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow-md);
+}
+.auth-title {
+  margin: 0 0 var(--sp-0);
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.auth-sub {
+  margin: 0 0 var(--sp-3);
+  color: var(--c-text-muted);
+}
+.auth-form { display: grid; gap: var(--sp-2); }
+
+/* App shell — sidebar + main on desktop, stacked on mobile. */
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: "sidebar view";
+}
+.sidebar       { grid-area: sidebar; }
+.view          { grid-area: view; }
+.mobile-topbar { display: none; }
+.bottom-tabs   { display: none; }
+
+/* ─── sidebar ────────────────────────────────────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-2);
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-1);
+  font-weight: 700;
+  font-size: var(--fs-lg);
+}
+.brand-icon { color: var(--c-accent); }
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 10px var(--sp-2);
+  border-radius: var(--r-md);
+  color: var(--c-text-muted);
+  font-weight: 500;
+  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
+}
+.nav-link:hover {
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+}
+.nav-link[aria-current="page"] {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+.nav-link svg { width: 18px; height: 18px; }
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--c-border);
+}
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--c-surface-alt);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+}
+.user-chip strong {
+  color: var(--c-text);
+  font-weight: 600;
+}
+.user-chip .role-badge {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  padding: 2px 8px;
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  border-radius: var(--r-pill);
+}
+
+/* ─── main view area ─────────────────────────────────────────────────────── */
+.view {
+  padding: var(--sp-3);
+  max-width: 2400px;
+  margin: 0 auto;
+  width: 100%;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+}
+.page-title {
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.page-actions { margin-left: auto; display: flex; gap: var(--sp-1); }
+
+/* ─── forms ──────────────────────────────────────────────────────────────── */
+.field { display: grid; gap: var(--sp-0); }
+.field-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--c-text-muted);
+}
+.input,
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="number"],
+.field input[type="search"],
+.field input[type="url"],
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  font-size: var(--fs-md);
+  color: var(--c-text);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus,
+.input:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+.field input[readonly] {
+  background: var(--c-surface-alt);
+  color: var(--c-text-muted);
+  cursor: default;
+}
+.field textarea { resize: vertical; min-height: 80px; }
+
+.form-error {
+  margin: 0;
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+}
+
+/* ─── buttons ────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-0);
+  padding: 10px var(--sp-2);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--c-text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast),
+              transform var(--t-fast), opacity var(--t-fast);
+}
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn svg { width: 16px; height: 16px; }
+
+.btn-primary {
+  background: var(--c-accent);
+  color: var(--c-accent-text);
+  border-color: var(--c-accent);
+}
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+.btn-secondary {
+  background: var(--c-surface);
+  border-color: var(--c-border-strong);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--c-surface-alt); }
+.btn-ghost { background: transparent; }
+.btn-ghost:hover:not(:disabled) { background: var(--c-surface-alt); }
+.btn-danger {
+  background: var(--c-surface);
+  color: var(--c-danger);
+  border-color: var(--c-border-strong);
+}
+.btn-danger:hover:not(:disabled) { background: var(--c-danger-soft); }
+
+.btn-sm { padding: 6px 10px; font-size: var(--fs-sm); }
+.btn-block { width: 100%; }
+
+.muted-hint {
+  font-weight: 400;
+  font-size: var(--fs-xs);
+  color: var(--c-text-faint);
+}
+
+/* Weather-flag toggles. Visually a chip so users can tell at a glance
+   whether the bit is on. */
+.weather-flags {
+  display: flex; gap: var(--sp-1); flex-wrap: wrap;
+}
+.flag-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-alt);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  user-select: none;
+}
+.flag-chip input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--c-accent);
+}
+.flag-chip svg { width: 14px; height: 14px; color: var(--c-text-muted); }
+.flag-chip:has(input:checked) {
+  border-color: var(--c-accent);
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+.flag-chip:has(input:checked) svg { color: var(--c-accent); }
+
+/* Text-only button that looks like a link — used for in-table jump links
+   (e.g. clickable item-count in the admin user table). */
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--c-accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link-button:hover { color: var(--c-accent-hover, var(--c-accent)); text-decoration-thickness: 2px; }
+.link-button:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ─── tables (admin) ─────────────────────────────────────────────────────── */
+.table-wrap {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.table th, .table td {
+  text-align: left;
+  padding: var(--sp-2);
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: middle;
+}
+.table th {
+  background: var(--c-surface-alt);
+  font-weight: 600;
+  color: var(--c-text-muted);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.table tr:last-child td { border-bottom: none; }
+.table .muted { color: var(--c-text-muted); }
+
+/* ─── empty / loading states ─────────────────────────────────────────────── */
+.empty-state {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: var(--sp-6) var(--sp-3);
+  color: var(--c-text-muted);
+  gap: var(--sp-1);
+}
+.empty-state svg {
+  width: 48px; height: 48px;
+  color: var(--c-text-faint);
+  margin-bottom: var(--sp-1);
+}
+.loading {
+  padding: var(--sp-4);
+  text-align: center;
+  color: var(--c-text-muted);
+}
+
+/* ─── responsive breakpoint: switch to mobile ────────────────────────────── */
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "topbar"
+      "view"
+      "tabs";
+  }
+  .sidebar { display: none; }
+  .mobile-topbar {
+    grid-area: topbar;
+    display: flex;
+    flex-direction: column;
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-border);
+    position: sticky; top: 0;
+    z-index: 50;
+  }
+  .topbar-weather {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    width: 100%;
+    padding: 0 var(--sp-2);
+    height: var(--topbar-h);
+    background: transparent;
+    border: none;
+    color: var(--c-text);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .topbar-weather .chev {
+    margin-left: auto;
+    transition: transform var(--t-fast);
+  }
+  .topbar-weather[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .topbar-weather-summary {
+    color: var(--c-text-muted);
+    font-weight: 400;
+    font-size: var(--fs-sm);
+  }
+  .bottom-tabs {
+    grid-area: tabs;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    background: var(--c-surface);
+    border-top: 1px solid var(--c-border);
+    position: sticky; bottom: 0;
+    z-index: 50;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: var(--bottom-tabs-h);
+    color: var(--c-text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab[aria-current="page"] { color: var(--c-accent); }
+  .view {
+    padding: var(--sp-2) var(--sp-2) var(--sp-3);
+    /* Grid items default to min-width: auto (content-size). Without this
+       the admin table's min-width: 600px below would blow out the .view
+       track and make the WHOLE app shell scroll horizontally on phones —
+       including the bottom-tabs and top-bar. */
+    min-width: 0;
+  }
+  .page-title { font-size: 22px; }
+
+  /* Mobile drops the desktop page-header strip entirely — the page-action
+     buttons that lived inside it (New collection / Add user) now appear as
+     bottom FABs so the user can reach them with a thumb. The wardrobe FAB
+     is the reference pattern. */
+  .page-header { display: none; }
+
+  /* Admin table is 6 cols wide; on a phone it can't fit, so swap the
+     desktop's clipping overflow for an inertia-scrollable strip — but ONLY
+     the strip scrolls, not the page (see .view min-width: 0 above). */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table { min-width: 600px; }
+  .table th, .table td { white-space: nowrap; }
+}
+
+/* ─── reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+uploads
+*.log
+.DS_Store
+
+# Dev-only — tests, coverage, jest config don't belong in the runtime image.
+tests
+coverage
+jest.config.js
+*.md

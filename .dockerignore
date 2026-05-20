@@ -1,0 +1,11 @@
+# Matches at any depth so nested api/node_modules + mockups/node_modules are
+# also excluded from the build context.
+**/node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+uploads
+*.log
+.DS_Store
+
